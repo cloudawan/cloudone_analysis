@@ -15,7 +15,7 @@
 package main
 
 import (
-	"github.com/cloudawan/kubernetes_management_analysis/Godeps/_workspace/src/code.google.com/p/log4go"
+	"code.google.com/p/log4go"
 	_ "github.com/cloudawan/kubernetes_management_analysis/execute"
 	"github.com/cloudawan/kubernetes_management_analysis/restapi"
 	"github.com/cloudawan/kubernetes_management_analysis/utility/logger"
