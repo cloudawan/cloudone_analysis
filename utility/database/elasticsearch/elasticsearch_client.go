@@ -15,13 +15,12 @@
 package elasticsearch
 
 import (
-	"code.google.com/p/log4go"
 	"github.com/cloudawan/kubernetes_management_analysis/utility/configuration"
 	"github.com/cloudawan/kubernetes_management_analysis/utility/logger"
 	"github.com/cloudawan/kubernetes_management_utility/database/elasticsearch"
 )
 
-var log log4go.Logger = logger.GetLogger("utility")
+var log = logger.GetLog("utility")
 
 var ElasticSearchClient *elasticsearch.ElasticSearchClient
 

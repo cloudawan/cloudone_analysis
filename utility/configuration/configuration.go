@@ -15,10 +15,11 @@
 package configuration
 
 import (
-	"code.google.com/p/log4go"
 	"github.com/cloudawan/kubernetes_management_analysis/utility/logger"
 	"github.com/cloudawan/kubernetes_management_utility/configuration"
 )
+
+var log = logger.GetLog("utility")
 
 var configurationContent = `
 {
@@ -30,8 +31,6 @@ var configurationContent = `
 	"kubeapiPort": 8080
 }
 `
-
-var log log4go.Logger = logger.GetLogger("utility")
 
 var LocalConfiguration *configuration.Configuration
 

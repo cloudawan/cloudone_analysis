@@ -15,11 +15,10 @@
 package event
 
 import (
-	"code.google.com/p/log4go"
 	"github.com/cloudawan/kubernetes_management_analysis/utility/logger"
 )
 
-var log log4go.Logger = logger.GetLogger("event")
+var log = logger.GetLog("event")
 
 const (
 	// No Captial is allowed in index name

@@ -15,20 +15,19 @@
 package logger
 
 import (
-	"code.google.com/p/log4go"
 	"github.com/cloudawan/kubernetes_management_utility/logger"
 )
 
-var log *logger.Log
+var logManager *logger.LogManager
 
 func init() {
 	var err error
-	log, err = logger.CreateLog("kubernetes_management_analysis")
+	logManager, err = logger.CreateLogManager("kubernetes_management_analysis")
 	if err != nil {
 		panic(err)
 	}
 }
 
-func GetLogger(moduleName string) log4go.Logger {
-	return log.GetLogger(moduleName)
+func GetLog(moduleName string) logger.Log {
+	return logManager.GetLog(moduleName)
 }
