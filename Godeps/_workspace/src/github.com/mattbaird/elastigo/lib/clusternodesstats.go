@@ -1,28 +1,31 @@
-// Copyright 2015 CloudAwan LLC
-//
+// Copyright 2015 Niels Freier
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-//
 //     http://www.apache.org/licenses/LICENSE-2.0
-//
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package elastigo
 
 import (
-	"github.com/cloudawan/kubernetes_management_analysis/Godeps/_workspace/src/code.google.com/p/log4go"
-	_ "github.com/cloudawan/kubernetes_management_analysis/execute"
-	"github.com/cloudawan/kubernetes_management_analysis/restapi"
-	"github.com/cloudawan/kubernetes_management_analysis/utility/logger"
+	"encoding/json"
 )
 
-var log log4go.Logger = logger.GetLogger("default")
+func (c *Conn) NodesStats() (NodeStatsResponse, error) {
+	var retval NodeStatsResponse
 
-func main() {
-	restapi.StartRestAPIServer()
+	body, err := c.DoCommand("GET", "/_nodes/stats", nil, nil)
+	if err != nil {
+		return retval, err
+	}
+	// marshall into json
+	jsonErr := json.Unmarshal(body, &retval)
+	if jsonErr != nil {
+		return retval, jsonErr
+	}
+	return retval, err
 }

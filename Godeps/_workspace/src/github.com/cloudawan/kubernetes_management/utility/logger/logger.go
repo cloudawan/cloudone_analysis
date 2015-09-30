@@ -12,17 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package logger
 
 import (
 	"github.com/cloudawan/kubernetes_management_analysis/Godeps/_workspace/src/code.google.com/p/log4go"
-	_ "github.com/cloudawan/kubernetes_management_analysis/execute"
-	"github.com/cloudawan/kubernetes_management_analysis/restapi"
-	"github.com/cloudawan/kubernetes_management_analysis/utility/logger"
+	"github.com/cloudawan/kubernetes_management_analysis/Godeps/_workspace/src/github.com/cloudawan/kubernetes_management_utility/logger"
 )
 
-var log log4go.Logger = logger.GetLogger("default")
+var log *logger.Log
 
-func main() {
-	restapi.StartRestAPIServer()
+func init() {
+	var err error
+	log, err = logger.CreateLog("kubernetes_management")
+	if err != nil {
+		panic(err)
+	}
+}
+
+func GetLogger(moduleName string) log4go.Logger {
+	return log.GetLogger(moduleName)
 }
