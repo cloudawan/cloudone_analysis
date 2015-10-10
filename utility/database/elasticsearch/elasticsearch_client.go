@@ -20,7 +20,7 @@ import (
 	"github.com/cloudawan/kubernetes_management_utility/database/elasticsearch"
 )
 
-var log = logger.GetLog("utility")
+var log = logger.GetLogManager().GetLogger("utility")
 
 var ElasticSearchClient *elasticsearch.ElasticSearchClient
 

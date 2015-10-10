@@ -18,7 +18,7 @@ import (
 	"github.com/cloudawan/kubernetes_management_analysis/utility/logger"
 )
 
-var log = logger.GetLog("event")
+var log = logger.GetLogManager().GetLogger("event")
 
 const (
 	// No Captial is allowed in index name
