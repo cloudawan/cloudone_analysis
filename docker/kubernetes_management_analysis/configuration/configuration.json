@@ -1,0 +1,8 @@
+{
+	"certificate": "/etc/kubernetes_management_analysis/development_cert.pem",
+	"key": "/etc/kubernetes_management_analysis/development_key.pem",
+	"elasticsearchHost": [{{ELASTICSEARCH_CLUSTER_HOST}}],
+	"elasticsearchPort": {{ELASTICSEARCH_CLUSTER_PORT}},
+	"kubeapiHost": "{{KUBEAPI_HOST}}",
+	"kubeapiPort": {{KUBEAPI_PORT}}
+}
