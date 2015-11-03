@@ -16,7 +16,7 @@ package restapi
 
 import (
 	"fmt"
-	"github.com/cloudawan/kubernetes_management_analysis/event"
+	"github.com/cloudawan/cloudone_analysis/event"
 	"github.com/emicklei/go-restful"
 	"strconv"
 	"time"

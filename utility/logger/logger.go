@@ -15,14 +15,14 @@
 package logger
 
 import (
-	"github.com/cloudawan/kubernetes_management_utility/logger"
+	"github.com/cloudawan/cloudone_utility/logger"
 )
 
 var logManager *logger.LogManager
 
 func init() {
 	var err error
-	logManager, err = logger.CreateLogManager("kubernetes_management_analysis")
+	logManager, err = logger.CreateLogManager("cloudone_analysis")
 	if err != nil {
 		panic(err)
 	}

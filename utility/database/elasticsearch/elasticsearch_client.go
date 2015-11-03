@@ -15,9 +15,9 @@
 package elasticsearch
 
 import (
-	"github.com/cloudawan/kubernetes_management_analysis/utility/configuration"
-	"github.com/cloudawan/kubernetes_management_analysis/utility/logger"
-	"github.com/cloudawan/kubernetes_management_utility/database/elasticsearch"
+	"github.com/cloudawan/cloudone_analysis/utility/configuration"
+	"github.com/cloudawan/cloudone_analysis/utility/logger"
+	"github.com/cloudawan/cloudone_utility/database/elasticsearch"
 )
 
 var log = logger.GetLogManager().GetLogger("utility")

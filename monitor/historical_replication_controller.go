@@ -18,9 +18,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"github.com/cloudawan/kubernetes_management_analysis/control"
-	"github.com/cloudawan/kubernetes_management_utility/jsonparse"
-	"github.com/cloudawan/kubernetes_management_utility/logger"
+	"github.com/cloudawan/cloudone_analysis/control"
+	"github.com/cloudawan/cloudone_utility/jsonparse"
+	"github.com/cloudawan/cloudone_utility/logger"
 	"strconv"
 	"time"
 )

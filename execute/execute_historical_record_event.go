@@ -15,9 +15,9 @@
 package execute
 
 import (
-	"github.com/cloudawan/kubernetes_management_analysis/event"
-	"github.com/cloudawan/kubernetes_management_analysis/utility/configuration"
-	"github.com/cloudawan/kubernetes_management_utility/logger"
+	"github.com/cloudawan/cloudone_analysis/event"
+	"github.com/cloudawan/cloudone_analysis/utility/configuration"
+	"github.com/cloudawan/cloudone_utility/logger"
 	"time"
 )
 

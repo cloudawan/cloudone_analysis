@@ -15,7 +15,7 @@
 package control
 
 import (
-	"github.com/cloudawan/kubernetes_management_analysis/utility/logger"
+	"github.com/cloudawan/cloudone_analysis/utility/logger"
 )
 
 var log = logger.GetLogManager().GetLogger("control")

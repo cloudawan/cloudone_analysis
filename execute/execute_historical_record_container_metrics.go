@@ -15,10 +15,10 @@
 package execute
 
 import (
-	"github.com/cloudawan/kubernetes_management_analysis/control"
-	"github.com/cloudawan/kubernetes_management_analysis/monitor"
-	"github.com/cloudawan/kubernetes_management_analysis/utility/configuration"
-	"github.com/cloudawan/kubernetes_management_utility/logger"
+	"github.com/cloudawan/cloudone_analysis/control"
+	"github.com/cloudawan/cloudone_analysis/monitor"
+	"github.com/cloudawan/cloudone_analysis/utility/configuration"
+	"github.com/cloudawan/cloudone_utility/logger"
 	"time"
 )
 

@@ -17,8 +17,8 @@ package monitor
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/cloudawan/kubernetes_management_analysis/utility/database/elasticsearch"
-	elasticsearchlib "github.com/cloudawan/kubernetes_management_utility/database/elasticsearch"
+	"github.com/cloudawan/cloudone_analysis/utility/database/elasticsearch"
+	elasticsearchlib "github.com/cloudawan/cloudone_utility/database/elasticsearch"
 )
 
 func init() {
