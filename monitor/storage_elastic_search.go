@@ -116,14 +116,6 @@ func createIndexTemplate() error {
 							"has_network":{
 								"type":"boolean"
 							},
-							"labels":{
-								"properties":{
-									"io.kubernetes.pod.name":{
-										"type":"string",
-										"index":"not_analyzed"
-									}
-								}
-							},
 							"memory":{
 								"properties":{
 									"limit":{
