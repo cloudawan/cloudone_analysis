@@ -13,7 +13,7 @@ is_elastic_search_up() {
     elastic_search_url="http://$elastic_search_host:$elastic_search_port"
     elastic_search_response=$(curl -m 1 "$elastic_search_url")
 
-    if [[ $elastic_search_response == *"\"status\" : 200"* ]]; then
+    if [[ $elastic_search_response == *"\"elasticsearch\""* ]]; then
       return 1
     fi
   done
@@ -40,13 +40,13 @@ fi
 
 
 # Use environment
-sed -i "s/{{KUBEAPI_HOST}}/$KUBEAPI_HOST/g" /etc/kubernetes_management_analysis/configuration.json
-sed -i "s/{{KUBEAPI_PORT}}/$KUBEAPI_PORT/g" /etc/kubernetes_management_analysis/configuration.json
-sed -i "s/{{ELASTICSEARCH_CLUSTER_HOST}}/$ELASTICSEARCH_CLUSTER_HOST/g" /etc/kubernetes_management_analysis/configuration.json
-sed -i "s/{{ELASTICSEARCH_CLUSTER_PORT}}/$ELASTICSEARCH_CLUSTER_PORT/g" /etc/kubernetes_management_analysis/configuration.json
+sed -i "s/{{KUBEAPI_HOST}}/$KUBEAPI_HOST/g" /etc/cloudone_analysis/configuration.json
+sed -i "s/{{KUBEAPI_PORT}}/$KUBEAPI_PORT/g" /etc/cloudone_analysis/configuration.json
+sed -i "s/{{ELASTICSEARCH_CLUSTER_HOST}}/$ELASTICSEARCH_CLUSTER_HOST/g" /etc/cloudone_analysis/configuration.json
+sed -i "s/{{ELASTICSEARCH_CLUSTER_PORT}}/$ELASTICSEARCH_CLUSTER_PORT/g" /etc/cloudone_analysis/configuration.json
 
-cd /src/kubernetes_management_analysis
-./kubernetes_management_analysis &
+cd /src/cloudone_analysis
+./cloudone_analysis &
 
 while :
 do

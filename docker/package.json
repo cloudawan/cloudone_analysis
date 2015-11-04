@@ -1,8 +1,8 @@
 {
-  "name": "kubernetes_management_analysis",
+  "name": "cloudone_analysis",
   "private": true,
   "version": "0.0.1",
-  "description": "kubernetes_management_analysis",
+  "description": "cloudone_analysis",
   "author": "Yu-Chen Chang <ycchang@cloudawan.com>",
   "dependencies": {
   }
