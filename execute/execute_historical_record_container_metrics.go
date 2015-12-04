@@ -44,16 +44,12 @@ func periodicalRunHistoricalRecordContainerMetrics() {
 		}
 	}()
 
-	kubeapiHost, ok := configuration.LocalConfiguration.GetString("kubeapiHost")
-	if ok == false {
-		log.Error("Fail to get configuration kubeapiHost")
+	kubeapiHost, kubeapiPort, err := configuration.GetAvailableKubeapiHostAndPort()
+	if err != nil {
+		log.Error("Fail to get configuration kubeapiHostAndPort with error %s", err)
 		return
 	}
-	kubeapiPort, ok := configuration.LocalConfiguration.GetInt("kubeapiPort")
-	if ok == false {
-		log.Error("Fail to get configuration kubeapiPort")
-		return
-	}
+
 	namespaceNameSlice, err := control.GetAllNamespaceName(kubeapiHost, kubeapiPort)
 	if err != nil {
 		log.Error(err)

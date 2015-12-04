@@ -43,14 +43,9 @@ func periodicalRunHistoricalRecordEvent() {
 		}
 	}()
 
-	kubeapiHost, ok := configuration.LocalConfiguration.GetString("kubeapiHost")
-	if ok == false {
-		log.Error("Fail to get configuration kubeapiHost")
-		return
-	}
-	kubeapiPort, ok := configuration.LocalConfiguration.GetInt("kubeapiPort")
-	if ok == false {
-		log.Error("Fail to get configuration kubeapiPort")
+	kubeapiHost, kubeapiPort, err := configuration.GetAvailableKubeapiHostAndPort()
+	if err != nil {
+		log.Error("Fail to get configuration kubeapiHostAndPort with error %s", err)
 		return
 	}
 

@@ -15,11 +15,16 @@
 package configuration
 
 import (
-	"github.com/cloudawan/cloudone_analysis/utility/logger"
+	"errors"
+	analysisLogger "github.com/cloudawan/cloudone_analysis/utility/logger"
 	"github.com/cloudawan/cloudone_utility/configuration"
+	"github.com/cloudawan/cloudone_utility/logger"
+	"github.com/cloudawan/cloudone_utility/restclient"
+	"strconv"
+	"strings"
 )
 
-var log = logger.GetLogManager().GetLogger("utility")
+var log = analysisLogger.GetLogManager().GetLogger("utility")
 
 var configurationContent = `
 {
@@ -27,8 +32,7 @@ var configurationContent = `
 	"key": "/etc/cloudone_analysis/development_key.pem",
 	"elasticsearchHost": ["127.0.0.1"],
 	"elasticsearchPort": 9200,
-	"kubeapiHost": "127.0.0.1",
-	"kubeapiPort": 8080
+	"kubeapiHostAndPort": ["127.0.0.1:8080"]
 }
 `
 
@@ -41,4 +45,38 @@ func init() {
 		log.Critical(err)
 		panic(err)
 	}
+}
+
+func GetAvailableKubeapiHostAndPort() (returnedHost string, returnedPort int, returnedError error) {
+	defer func() {
+		if err := recover(); err != nil {
+			returnedHost = ""
+			returnedPort = 0
+			returnedError = err.(error)
+			log.Error("GetAvailableKubeapiHostAndPort Error: %s", err)
+			log.Error(logger.GetStackTrace(4096, false))
+		}
+	}()
+
+	kubeapiHostAndPortSlice, ok := LocalConfiguration.GetStringSlice("kubeapiHostAndPort")
+	if ok == false {
+		log.Error("Fail to get configuration kubeapiHostAndPort")
+		return "", 0, errors.New("Fail to get configuration kubeapiHostAndPort")
+	}
+	for _, kubeapiHostAndPort := range kubeapiHostAndPortSlice {
+		_, err := restclient.RequestGet("http://"+kubeapiHostAndPort, false)
+		if err == nil {
+			splitSlice := strings.Split(kubeapiHostAndPort, ":")
+			host := splitSlice[0]
+			port, err := strconv.Atoi(splitSlice[1])
+			if err != nil {
+				log.Error(err)
+				return "", 0, err
+			}
+			return host, port, nil
+		}
+	}
+
+	log.Error("No available host and port")
+	return "", 0, errors.New("No available host and port")
 }
