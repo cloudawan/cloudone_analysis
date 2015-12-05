@@ -22,6 +22,7 @@ import (
 	"github.com/cloudawan/cloudone_utility/restclient"
 	"strconv"
 	"strings"
+	"time"
 )
 
 var log = analysisLogger.GetLogManager().GetLogger("utility")
@@ -64,8 +65,9 @@ func GetAvailableKubeapiHostAndPort() (returnedHost string, returnedPort int, re
 		return "", 0, errors.New("Fail to get configuration kubeapiHostAndPort")
 	}
 	for _, kubeapiHostAndPort := range kubeapiHostAndPortSlice {
-		_, err := restclient.RequestGet("http://"+kubeapiHostAndPort, false)
-		if err == nil {
+		result, err := restclient.HealthCheck("http://"+kubeapiHostAndPort, time.Second)
+
+		if result {
 			splitSlice := strings.Split(kubeapiHostAndPort, ":")
 			host := splitSlice[0]
 			port, err := strconv.Atoi(splitSlice[1])
@@ -74,6 +76,10 @@ func GetAvailableKubeapiHostAndPort() (returnedHost string, returnedPort int, re
 				return "", 0, err
 			}
 			return host, port, nil
+		} else {
+			if err != nil {
+				log.Error(err)
+			}
 		}
 	}
 
