@@ -33,11 +33,13 @@ var configurationContent = `
 	"key": "/etc/cloudone_analysis/development_key.pem",
 	"elasticsearchHost": ["127.0.0.1"],
 	"elasticsearchPort": 9200,
-	"kubeapiHostAndPort": ["127.0.0.1:8080"]
+	"kubeapiHostAndPort": ["127.0.0.1:8080"],
+	"kubeapiHealthCheckTimeoutInMilliSecond": 1000
 }
 `
 
 var LocalConfiguration *configuration.Configuration
+var KubeapiHealthCheckTimeoutInMilliSecond = 1000
 
 func init() {
 	var err error
@@ -64,8 +66,15 @@ func GetAvailableKubeapiHostAndPort() (returnedHost string, returnedPort int, re
 		log.Error("Fail to get configuration kubeapiHostAndPort")
 		return "", 0, errors.New("Fail to get configuration kubeapiHostAndPort")
 	}
+
+	kubeapiHealthCheckTimeoutInMilliSecond, ok := LocalConfiguration.GetInt("kubeapiHealthCheckTimeoutInMilliSecond")
+	if ok == false {
+		kubeapiHealthCheckTimeoutInMilliSecond = KubeapiHealthCheckTimeoutInMilliSecond
+	}
+
 	for _, kubeapiHostAndPort := range kubeapiHostAndPortSlice {
-		result, err := restclient.HealthCheck("http://"+kubeapiHostAndPort, time.Second)
+		result, err := restclient.HealthCheck("http://"+kubeapiHostAndPort,
+			time.Duration(kubeapiHealthCheckTimeoutInMilliSecond)*time.Millisecond)
 
 		if result {
 			splitSlice := strings.Split(kubeapiHostAndPort, ":")
