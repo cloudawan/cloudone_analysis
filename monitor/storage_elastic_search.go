@@ -26,7 +26,7 @@ func init() {
 }
 
 func createIndexTemplate() error {
-
+	// ElasticSearch doesn't allow to use character '.' in the field name so it should be replaced with '_'
 	tempateBody := `
 	{
 		"template": "` + indexContainerMetricsIndexPrefix + `*",
@@ -83,6 +83,18 @@ func createIndexTemplate() error {
 					},
 					"spec":{
 						"properties":{
+							"labels": {
+								"properties":{
+									"io_kubernetes_pod_name": {
+										"type":"string",
+										"index":"not_analyzed"
+									},
+									"io_kubernetes_pod_terminationGracePeriod": {
+										"type":"string",
+										"index":"not_analyzed"
+									}
+								}
+							},
 							"cpu":{
 								"properties":{
 									"limit":{
@@ -125,6 +137,13 @@ func createIndexTemplate() error {
 										"type":"double"
 									}
 								}
+							},
+							"has_custom_metrics": {
+								"type":"boolean"
+							},
+							"image": {
+								"type":"string",
+								"index":"not_analyzed"
 							}
 						}
 					},
@@ -287,6 +306,9 @@ func createIndexTemplate() error {
 											}
 										}
 									},
+									"failcnt":{
+										"type":"long"
+									},
 									"usage":{
 										"type":"long"
 									},
@@ -324,6 +346,80 @@ func createIndexTemplate() error {
 									},
 									"tx_packets":{
 										"type":"long"
+									},
+									"tcp":{
+										"properties":{
+											"Established":{
+												"type":"long"
+											},
+											"SynSent":{
+												"type":"long"
+											},
+											"SynRecv":{
+												"type":"long"
+											},
+											"FinWait1":{
+												"type":"long"
+											},
+											"FinWait2":{
+												"type":"long"
+											},
+											"TimeWait":{
+												"type":"long"
+											},
+											"Close":{
+												"type":"long"
+											},
+											"CloseWait":{
+												"type":"long"
+											},
+											"LastAck":{
+												"type":"long"
+											},
+											"Listen":{
+												"type":"long"
+											},
+											"Closing":{
+												"type":"long"
+											}
+										}
+									},
+									"tcp6":{
+										"properties":{
+											"Established":{
+												"type":"long"
+											},
+											"SynSent":{
+												"type":"long"
+											},
+											"SynRecv":{
+												"type":"long"
+											},
+											"FinWait1":{
+												"type":"long"
+											},
+											"FinWait2":{
+												"type":"long"
+											},
+											"TimeWait":{
+												"type":"long"
+											},
+											"Close":{
+												"type":"long"
+											},
+											"CloseWait":{
+												"type":"long"
+											},
+											"LastAck":{
+												"type":"long"
+											},
+											"Listen":{
+												"type":"long"
+											},
+											"Closing":{
+												"type":"long"
+											}
+										}
 									}
 								}
 							},

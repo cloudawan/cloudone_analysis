@@ -25,8 +25,8 @@ func TestSearchHistoricalReplicationControllerMetrics(t *testing.T) {
 	nodeAmount := 10
 	from := current.Add(-1 * time.Minute)
 	to := current.Add(-0 * time.Minute)
-	byteSlice, _ := searchHistoricalReplicationControllerMetrics("default", "cassandra", nodeAmount, from, to)
-	fmt.Println(string(byteSlice))
+	byteSlice, err := searchHistoricalReplicationControllerMetrics("default", "cloudone-all", nodeAmount, from, to)
+	fmt.Println(string(byteSlice), err)
 }
 
 /*

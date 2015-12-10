@@ -25,39 +25,43 @@ import (
 	"time"
 )
 
-func RecordHistoricalReplicationController(kubeapiHost string, kubeapiPort int, namespace string, replicationControllerName string) (returnedError error) {
+func RecordHistoricalReplicationController(kubeapiHost string, kubeapiPort int, namespace string, replicationControllerName string) (returnedReplicationControllerContainerRecordSlice []map[string]interface{}, returnedError error) {
 	defer func() {
 		if err := recover(); err != nil {
 			log.Error("RecordHistoricalReplicationController Error: %s", err)
 			log.Error(logger.GetStackTrace(4096, false))
 			returnedError = err.(error)
+			returnedReplicationControllerContainerRecordSlice = nil
 		}
 	}()
 
 	podNameSlice, err := control.GetAllPodNameBelongToReplicationController(kubeapiHost, kubeapiPort, namespace, replicationControllerName)
 	if err != nil {
 		log.Error("Fail to get all pod name belong to the replication controller with host %s, port: %d, namespace: %s, replication controller name: %s", kubeapiHost, kubeapiPort, namespace, replicationControllerName)
-		return err
+		return nil, err
 	}
 
 	errorBuffer := bytes.Buffer{}
 	errorBuffer.WriteString("The following container has error: ")
 	errorHappened := false
 
+	replicationControllerContainerRecordSlice := make([]map[string]interface{}, 0)
 	for _, podName := range podNameSlice {
-		err := RecordHistoricalPod(kubeapiHost, kubeapiPort, namespace, replicationControllerName, podName)
+		podContainerRecordSlice, err := RecordHistoricalPod(kubeapiHost, kubeapiPort, namespace, replicationControllerName, podName)
 		if err != nil {
 			errorHappened = true
 			log.Error("RecordHistoricalPod error %s", err)
 			errorBuffer.WriteString("RecordHistoricalPod error " + err.Error())
+		} else {
+			replicationControllerContainerRecordSlice = append(replicationControllerContainerRecordSlice, podContainerRecordSlice...)
 		}
 	}
 
 	if errorHappened {
 		log.Error("Fail to get all container inofrmation with host %s, port: %d, namespace: %s, error %s", kubeapiHost, kubeapiPort, namespace, errorBuffer.String())
-		return errors.New(errorBuffer.String())
+		return nil, errors.New(errorBuffer.String())
 	} else {
-		return nil
+		return replicationControllerContainerRecordSlice, nil
 	}
 }
 
@@ -238,7 +242,7 @@ func searchHistoricalReplicationControllerMetrics(
 				"stats.timestamp" : {
 					"gte": "` + gte + `",
 					"lte": "` + lte + `",
-					"time_zone": "+0:00"
+					"time_zone": "+00:00"
 				}
 			}
 	    },

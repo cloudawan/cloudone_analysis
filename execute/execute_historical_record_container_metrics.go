@@ -15,7 +15,6 @@
 package execute
 
 import (
-	"github.com/cloudawan/cloudone_analysis/control"
 	"github.com/cloudawan/cloudone_analysis/monitor"
 	"github.com/cloudawan/cloudone_analysis/utility/configuration"
 	"github.com/cloudawan/cloudone_utility/logger"
@@ -50,22 +49,8 @@ func periodicalRunHistoricalRecordContainerMetrics() {
 		return
 	}
 
-	namespaceNameSlice, err := control.GetAllNamespaceName(kubeapiHost, kubeapiPort)
-	if err != nil {
+	if err := monitor.RecordHistoricalAllNamespace(kubeapiHost, kubeapiPort); err != nil {
 		log.Error(err)
 		return
-	}
-	for _, namespaceName := range namespaceNameSlice {
-		replicationControllerNameSlice, err := control.GetAllReplicationControllerName(kubeapiHost, kubeapiPort, namespaceName)
-		if err != nil {
-			log.Error(err)
-		} else {
-			for _, replicationControllerName := range replicationControllerNameSlice {
-				err := monitor.RecordHistoricalReplicationController(kubeapiHost, kubeapiPort, namespaceName, replicationControllerName)
-				if err != nil {
-					log.Error(err)
-				}
-			}
-		}
 	}
 }

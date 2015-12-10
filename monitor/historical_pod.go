@@ -24,19 +24,22 @@ import (
 	"time"
 )
 
-func RecordHistoricalPod(kubeapiHost string, kubeapiPort int, namespace string, replicationControllerName string, podName string) (returnedError error) {
+func RecordHistoricalPod(kubeapiHost string, kubeapiPort int, namespace string, replicationControllerName string, podName string) (returnedPodContainerRecordSlice []map[string]interface{}, returnedError error) {
 	defer func() {
 		if err := recover(); err != nil {
 			log.Error("RecordHistoricalPod Error: %s", err)
 			log.Error(logger.GetStackTrace(4096, false))
+			returnedPodContainerRecordSlice = nil
 			returnedError = err.(error)
 		}
 	}()
 
+	podContainerRecordSlice := make([]map[string]interface{}, 0)
+
 	result, err := restclient.RequestGet("http://"+kubeapiHost+":"+strconv.Itoa(kubeapiPort)+"/api/v1/namespaces/"+namespace+"/pods/"+podName+"/", true)
 	if err != nil {
 		log.Error("Fail to get pod inofrmation with host %s, port: %d, namespace: %s, pod name: %s, error %s", kubeapiHost, kubeapiPort, namespace, podName, err.Error())
-		return err
+		return nil, err
 	}
 	jsonMap, _ := result.(map[string]interface{})
 
@@ -57,29 +60,43 @@ func RecordHistoricalPod(kubeapiHost string, kubeapiPort int, namespace string, 
 			log.Error("Request to url %s error %s", url, err)
 			errorBuffer.WriteString("Request to url " + url + " error " + err.Error())
 		} else {
+			// ElasticSearch doesn't allow to use character '.' in the field name so it should be replaced with '_'
+			if containerJsonMap["spec"].(map[string]interface{})["labels"] != nil {
+				for key, value := range containerJsonMap["spec"].(map[string]interface{})["labels"].(map[string]interface{}) {
+					if strings.Contains(key, ".") {
+						newKey := strings.Replace(key, ".", "_", -1)
+						containerJsonMap["spec"].(map[string]interface{})["labels"].(map[string]interface{})[newKey] = value
+						delete(containerJsonMap["spec"].(map[string]interface{})["labels"].(map[string]interface{}), key)
+					}
+				}
+			}
+
 			// Historical data
-			err := splitHistoricalDataIntoSecondBased(namespace, replicationControllerName,
+			containerRecordSlice, err := splitHistoricalDataIntoSecondBased(namespace, replicationControllerName,
 				podName, containerName, containerJsonMap)
 			if err != nil {
 				errorHappened = true
 				log.Error("Save container record %s error %s", containerJsonMap, err)
 				errorBuffer.WriteString("Save container record  " + containerName + " error " + err.Error())
+			} else {
+				podContainerRecordSlice = append(podContainerRecordSlice, containerRecordSlice...)
 			}
 		}
 	}
 
 	if errorHappened {
 		log.Error("Fail to get all container inofrmation with host %s, port: %d, namespace: %s, pod name: %s, error %s", kubeapiHost, kubeapiPort, namespace, podName, errorBuffer.String())
-		return errors.New(errorBuffer.String())
+		return nil, errors.New(errorBuffer.String())
 	} else {
-		return nil
+		return podContainerRecordSlice, nil
 	}
 }
 
 func splitHistoricalDataIntoSecondBased(namespace string, replicationControllerName string,
-	podName string, containerName string, jsonMap map[string]interface{}) error {
+	podName string, containerName string, jsonMap map[string]interface{}) ([]map[string]interface{}, error) {
 	statsSlice, ok := jsonMap["stats"].([]interface{})
 	if ok {
+		containerRecordSlice := make([]map[string]interface{}, 0)
 		for _, stats := range statsSlice {
 			statsJsonMap, ok := stats.(map[string]interface{})
 			if ok {
@@ -88,45 +105,55 @@ func splitHistoricalDataIntoSecondBased(namespace string, replicationControllerN
 					timestamp, err := time.Parse(time.RFC3339Nano, timestampField)
 					if err != nil {
 						log.Error("Parse timestamp error %s", stats)
-						return errors.New("Parse timestamp error")
+						return nil, errors.New("Parse timestamp error")
 					} else {
+						containerRecord := make(map[string]interface{})
+						for key, value := range jsonMap {
+							containerRecord[key] = value
+						}
+
 						index := getDocumentIndex(namespace)
 						documentType := getDocumentType(replicationControllerName)
 						id := getDocumentID(podName, containerName, timestamp)
-						jsonMap["searchMetaData"] = make(map[string]interface{})
-						jsonMap["searchMetaData"].(map[string]interface{})["namespace"] = namespace
-						jsonMap["searchMetaData"].(map[string]interface{})["replicationControllerName"] = replicationControllerName
-						jsonMap["searchMetaData"].(map[string]interface{})["podName"] = podName
-						jsonMap["searchMetaData"].(map[string]interface{})["containerName"] = containerName
-						jsonMap["stats"] = stats
+						containerRecord["searchMetaData"] = make(map[string]interface{})
+						containerRecord["searchMetaData"].(map[string]interface{})["namespace"] = namespace
+						containerRecord["searchMetaData"].(map[string]interface{})["replicationControllerName"] = replicationControllerName
+						containerRecord["searchMetaData"].(map[string]interface{})["podName"] = podName
+						containerRecord["searchMetaData"].(map[string]interface{})["containerName"] = containerName
+						containerRecord["searchMetaData"].(map[string]interface{})["index"] = index
+						containerRecord["searchMetaData"].(map[string]interface{})["documentType"] = documentType
+						containerRecord["searchMetaData"].(map[string]interface{})["id"] = id
+						containerRecord["stats"] = stats
 
-						err := saveContainerRecord(index, documentType, id, jsonMap)
+						containerRecordSlice = append(containerRecordSlice, containerRecord)
+						/*
+							//err := saveContainerRecord(index, documentType, id, jsonMap)
 
-						if err != nil {
-							log.Error("Save error %s", err)
-							return err
-						}
+							if err != nil {
+								log.Error("Save error %s", err)
+								return nil, err
+							}
+						*/
 					}
 
 				} else {
 					log.Error("Container doesn't have timestamp field in stats %s", stats)
-					return errors.New("Container doesn't have timestamp field in stats")
+					return nil, errors.New("Container doesn't have timestamp field in stats")
 				}
 			} else {
 				log.Error("Container doesn't have stats field as map %s", stats)
-				return errors.New("Container doesn't have stats field as map")
+				return nil, errors.New("Container doesn't have stats field as map")
 			}
 		}
 
-		return nil
+		return containerRecordSlice, nil
 	} else {
 		log.Error("Container doesn't have stats field")
-		return errors.New("Container doesn't have stats field")
+		return nil, errors.New("Container doesn't have stats field")
 	}
 }
 
 func getDocumentIndex(namespace string) string {
-
 	return indexContainerMetricsIndexPrefix + strings.ToLower(namespace)
 }
 
