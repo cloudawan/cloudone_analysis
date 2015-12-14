@@ -26,7 +26,9 @@ func loopHistoricalRecordEvent(ticker *time.Ticker, checkingInterval time.Durati
 		select {
 		case <-ticker.C:
 			// Historical record
-			periodicalRunHistoricalRecordEvent()
+			if active {
+				periodicalRunHistoricalRecordEvent()
+			}
 		case <-quitChannel:
 			ticker.Stop()
 			log.Info("Loop historical record event quit")

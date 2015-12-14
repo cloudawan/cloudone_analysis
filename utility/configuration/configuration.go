@@ -34,7 +34,9 @@ var configurationContent = `
 	"elasticsearchHost": ["127.0.0.1"],
 	"elasticsearchPort": 9200,
 	"kubeapiHostAndPort": ["127.0.0.1:8080"],
-	"kubeapiHealthCheckTimeoutInMilliSecond": 1000
+	"kubeapiHealthCheckTimeoutInMilliSecond": 1000,
+	"singletonLockTimeoutInMilliSecond": 5000,
+	"singletonLockWaitingAfterBeingCandidateInMilliSecond": 5000
 }
 `
 

@@ -12,27 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package execute
+package cluster
 
 import (
-	"time"
+	"github.com/cloudawan/cloudone_analysis/utility/logger"
 )
 
-var quitChannel = make(chan struct{})
+var log = logger.GetLogManager().GetLogger("cluster")
 
-func Close() {
-	close(quitChannel)
-}
+const (
+	// No Captial is allowed in index name
+	indexClusterSingletonLock = "indexclustersingletonlock"
 
-func init() {
-	loop(50*time.Second, loopHistoricalRecordContainerMetrics)
-	loop(1*time.Second, loopHistoricalRecordEvent)
-	loop(1*time.Second, loopSingleton)
-}
-
-type functionLoop func(ticker *time.Ticker, checkingInterval time.Duration)
-
-func loop(checkingInterval time.Duration, function functionLoop) {
-	ticker := time.NewTicker(checkingInterval)
-	go function(ticker, checkingInterval)
-}
+	typeCloudoneAnalysis = "cloudone_analysis"
+)

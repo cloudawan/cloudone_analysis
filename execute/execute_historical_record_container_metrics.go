@@ -26,7 +26,9 @@ func loopHistoricalRecordContainerMetrics(ticker *time.Ticker, checkingInterval 
 		select {
 		case <-ticker.C:
 			// Historical record
-			periodicalRunHistoricalRecordContainerMetrics()
+			if active {
+				periodicalRunHistoricalRecordContainerMetrics()
+			}
 		case <-quitChannel:
 			ticker.Stop()
 			log.Info("Loop historical record container metrics quit")
