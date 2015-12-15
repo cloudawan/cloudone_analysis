@@ -1,7 +1,7 @@
-FROM    centos:centos6
+FROM ubuntu:14.04
 
-#EPEL repository
-RUN rpm -iUvh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+# Install curl
+RUN apt-get install -y curl
 
 # Bundle app source
 COPY . /src
@@ -11,7 +11,7 @@ RUN mkdir -p /etc/cloudone_analysis
 RUN mkdir -p /var/log/cloudone_analysis
 RUN cp /src/cloudone_analysis/configuration/* /etc/cloudone_analysis/
 
-# Priviledge
+# Privilege
 RUN chmod a+x /src/run.sh
 RUN chmod a+x /src/cloudone_analysis/cloudone_analysis
 

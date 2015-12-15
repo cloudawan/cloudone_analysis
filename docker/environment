@@ -1,6 +1,5 @@
 {
 	"ELASTICSEARCH_CLUSTER_HOST": "Elasticsearch cluster. Format: \"Host1/IP1\", \"Host2/IP2\" ",
 	"ELASTICSEARCH_CLUSTER_PORT": "Elasticsearch port. Format: Number ",
-	"KUBEAPI_HOST": "Kubernetes API server Host IP. Format: Host/IP ",
-	"KUBEAPI_PORT": "Kubernetes API server Port. Format: Number "
+	"KUBEAPI_CLUSTER_HOST_AND_PORT": "Kubernetes API server Host And Port. Format: \"Host1:Port1\", \"Host2:Port2\" "
 }
