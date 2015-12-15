@@ -13,7 +13,7 @@ is_elastic_search_up() {
     elastic_search_url="http://$elastic_search_host:$elastic_search_port"
     elastic_search_response=$(curl -m 1 "$elastic_search_url")
 
-    if [[ $elastic_search_response == *"\"elasticsearch\""* ]]; then
+    if [[ $elastic_search_response == *"version"* ]]; then
       return 1
     fi
   done
@@ -49,6 +49,6 @@ cd /src/cloudone_analysis
 
 while :
 do
-	sleep 1
+  sleep 1
 done
 
