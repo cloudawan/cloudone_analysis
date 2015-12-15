@@ -3,6 +3,8 @@
 	"key": "/etc/cloudone_analysis/development_key.pem",
 	"elasticsearchHost": [{{ELASTICSEARCH_CLUSTER_HOST}}],
 	"elasticsearchPort": {{ELASTICSEARCH_CLUSTER_PORT}},
-	"kubeapiHost": "{{KUBEAPI_HOST}}",
-	"kubeapiPort": {{KUBEAPI_PORT}}
+	"kubeapiHostAndPort": [{{KUBEAPI_CLUSTER_HOST_AND_PORT}}],
+	"kubeapiHealthCheckTimeoutInMilliSecond": 1000,
+	"singletonLockTimeoutInMilliSecond": 5000,
+	"singletonLockWaitingAfterBeingCandidateInMilliSecond": 5000
 }
