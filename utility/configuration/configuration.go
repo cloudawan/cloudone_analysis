@@ -31,6 +31,7 @@ var configurationContent = `
 {
 	"certificate": "/etc/cloudone_analysis/development_cert.pem",
 	"key": "/etc/cloudone_analysis/development_key.pem",
+	"restapiPort": 8082,
 	"elasticsearchHost": ["127.0.0.1"],
 	"elasticsearchPort": 9200,
 	"kubeapiHostAndPort": ["127.0.0.1:8080"],

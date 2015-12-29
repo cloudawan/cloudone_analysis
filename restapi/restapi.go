@@ -19,12 +19,14 @@ import (
 	"github.com/emicklei/go-restful"
 	"github.com/emicklei/go-restful/swagger"
 	"net/http"
+	"strconv"
 )
 
 func StartRestAPIServer() {
 	registerWebServiceHistoricalReplicationControllerMetric()
 	registerWebServiceHistoricalReplicationController()
 	registerWebServiceHistoricalEvent()
+	registerWebServiceHealthCheck()
 
 	// You can install the Swagger Service which provides a nice Web UI on your REST API
 	// You need to download the Swagger HTML5 assets and change the FilePath location in the config below.
@@ -39,7 +41,13 @@ func StartRestAPIServer() {
 		SwaggerFilePath: "swaggerui"}
 	swagger.RegisterSwaggerService(config, restful.DefaultContainer)
 
-	server := &http.Server{Addr: ":8082", Handler: restful.DefaultContainer}
+	restapiPort, ok := configuration.LocalConfiguration.GetInt("restapiPort")
+	if ok == false {
+		log.Error("Can't find restapiPort")
+		panic("Can't find restapiPort")
+	}
+
+	server := &http.Server{Addr: ":" + strconv.Itoa(restapiPort), Handler: restful.DefaultContainer}
 
 	certificate, ok := configuration.LocalConfiguration.GetString("certificate")
 	if ok == false {
