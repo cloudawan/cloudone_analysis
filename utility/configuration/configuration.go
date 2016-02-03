@@ -45,12 +45,20 @@ var LocalConfiguration *configuration.Configuration
 var KubeapiHealthCheckTimeoutInMilliSecond = 1000
 
 func init() {
-	var err error
-	LocalConfiguration, err = configuration.CreateConfiguration("cloudone_analysis", configurationContent)
+	err := Reload()
 	if err != nil {
 		log.Critical(err)
 		panic(err)
 	}
+}
+
+func Reload() error {
+	localConfiguration, err := configuration.CreateConfiguration("cloudone_analysis", configurationContent)
+	if err == nil {
+		LocalConfiguration = localConfiguration
+	}
+
+	return err
 }
 
 func GetAvailableKubeapiHostAndPort() (returnedHost string, returnedPort int, returnedError error) {
