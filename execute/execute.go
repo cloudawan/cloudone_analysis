@@ -25,7 +25,7 @@ func Close() {
 }
 
 func init() {
-	loop(50*time.Second, loopHistoricalRecordContainerMetrics)
+	//loop(50*time.Second, loopHistoricalRecordContainerMetrics)
 	loop(1*time.Second, loopHistoricalRecordEvent)
 	loop(1*time.Second, loopSingleton)
 }
