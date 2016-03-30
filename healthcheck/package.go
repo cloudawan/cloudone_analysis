@@ -18,4 +18,4 @@ import (
 	"github.com/cloudawan/cloudone/utility/logger"
 )
 
-var log = logger.GetLogManager().GetLogger("restapi")
+var log = logger.GetLogManager().GetLogger("healthcheck")
