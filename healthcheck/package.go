@@ -15,7 +15,7 @@
 package healthcheck
 
 import (
-	"github.com/cloudawan/cloudone/utility/logger"
+	"github.com/cloudawan/cloudone_analysis/utility/logger"
 )
 
 var log = logger.GetLogManager().GetLogger("healthcheck")
