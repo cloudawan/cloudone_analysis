@@ -36,7 +36,7 @@ func RecordHistoricalPod(kubeapiHost string, kubeapiPort int, namespace string, 
 
 	podContainerRecordSlice := make([]map[string]interface{}, 0)
 
-	result, err := restclient.RequestGet("http://"+kubeapiHost+":"+strconv.Itoa(kubeapiPort)+"/api/v1/namespaces/"+namespace+"/pods/"+podName+"/", true)
+	result, err := restclient.RequestGet("http://"+kubeapiHost+":"+strconv.Itoa(kubeapiPort)+"/api/v1/namespaces/"+namespace+"/pods/"+podName+"/", nil, true)
 	if err != nil {
 		log.Error("Fail to get pod inofrmation with host %s, port: %d, namespace: %s, pod name: %s, error %s", kubeapiHost, kubeapiPort, namespace, podName, err.Error())
 		return nil, err
@@ -53,7 +53,7 @@ func RecordHistoricalPod(kubeapiHost string, kubeapiPort int, namespace string, 
 	for _, container := range containerSlice {
 		containerName, _ := container.(map[string]interface{})["name"].(string)
 		url := "https://" + kubeletHost + ":10250/stats/" + namespace + "/" + podName + "/" + uid + "/" + containerName
-		result, err := restclient.RequestGet(url, true)
+		result, err := restclient.RequestGet(url, nil, true)
 		containerJsonMap, _ := result.(map[string]interface{})
 		if err != nil {
 			errorHappened = true

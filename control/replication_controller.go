@@ -31,7 +31,7 @@ func GetAllReplicationControllerName(kubeapiHost string, kubeapiPort int, namesp
 	}()
 
 	url := "http://" + kubeapiHost + ":" + strconv.Itoa(kubeapiPort) + "/api/v1/namespaces/" + namespace + "/replicationcontrollers/"
-	jsonMap, err := restclient.RequestGet(url, true)
+	jsonMap, err := restclient.RequestGet(url, nil, true)
 	if err != nil {
 		return nil, err
 	} else {

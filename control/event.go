@@ -30,7 +30,7 @@ func GetAllEvent(kubeapiHost string, kubeapiPort int) (returnedEventSlice []map[
 		}
 	}()
 
-	jsonMap, err := restclient.RequestGet("http://"+kubeapiHost+":"+strconv.Itoa(kubeapiPort)+"/api/v1/events/", true)
+	jsonMap, err := restclient.RequestGet("http://"+kubeapiHost+":"+strconv.Itoa(kubeapiPort)+"/api/v1/events/", nil, true)
 	if err != nil {
 		log.Error("Fail to get all event with host: %s, port: %d, error: %s", kubeapiHost, kubeapiPort, err.Error())
 		return nil, err
@@ -56,7 +56,7 @@ func DeleteEvent(kubeapiHost string, kubeapiPort int, selfLink string) (returned
 		}
 	}()
 
-	_, err := restclient.RequestDelete("http://"+kubeapiHost+":"+strconv.Itoa(kubeapiPort)+selfLink, nil, true)
+	_, err := restclient.RequestDelete("http://"+kubeapiHost+":"+strconv.Itoa(kubeapiPort)+selfLink, nil, nil, true)
 	if err != nil {
 		log.Error("Fail to delete event selfLink %s with host: %s, port: %d, error: %s", selfLink, kubeapiHost, kubeapiPort, err.Error())
 		return err

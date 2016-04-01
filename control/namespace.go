@@ -30,7 +30,7 @@ func GetAllNamespaceName(kubeapiHost string, kubeapiPort int) (returnedNameSlice
 		}
 	}()
 
-	jsonMap, err := restclient.RequestGet("http://"+kubeapiHost+":"+strconv.Itoa(kubeapiPort)+"/api/v1/namespaces/", true)
+	jsonMap, err := restclient.RequestGet("http://"+kubeapiHost+":"+strconv.Itoa(kubeapiPort)+"/api/v1/namespaces/", nil, true)
 	if err != nil {
 		log.Error("Fail to get all namespace name with host: %s, port: %d, error: %s", kubeapiHost, kubeapiPort, err.Error())
 		return nil, err

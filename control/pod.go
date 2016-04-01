@@ -30,7 +30,7 @@ func GetAllPodNameBelongToReplicationController(kubeapiHost string, kubeapiPort 
 		}
 	}()
 
-	jsonMap, err := restclient.RequestGet("http://"+kubeapiHost+":"+strconv.Itoa(kubeapiPort)+"/api/v1/namespaces/"+namespace+"/pods/", true)
+	jsonMap, err := restclient.RequestGet("http://"+kubeapiHost+":"+strconv.Itoa(kubeapiPort)+"/api/v1/namespaces/"+namespace+"/pods/", nil, true)
 	if err != nil {
 		log.Error("Fail to get replication controller inofrmation with host %s, port: %d, namespace: %s, replication controller name: %s, error %s", kubeapiHost, kubeapiPort, namespace, replicationControllerName, err.Error())
 		return nil, err
