@@ -15,7 +15,7 @@
 package main
 
 import (
-	_ "github.com/cloudawan/cloudone_analysis/execute"
+	"github.com/cloudawan/cloudone_analysis/execute"
 	"github.com/cloudawan/cloudone_analysis/restapi"
 	"github.com/cloudawan/cloudone_analysis/utility/logger"
 )
@@ -24,4 +24,5 @@ var log = logger.GetLogManager().GetLogger("default")
 
 func main() {
 	restapi.StartRestAPIServer()
+	execute.Close()
 }
