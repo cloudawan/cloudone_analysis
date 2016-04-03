@@ -24,5 +24,6 @@ var log = logger.GetLogManager().GetLogger("default")
 
 func main() {
 	restapi.StartRestAPIServer()
+	restapi.Close()
 	execute.Close()
 }

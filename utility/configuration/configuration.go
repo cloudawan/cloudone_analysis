@@ -37,7 +37,10 @@ var configurationContent = `
 	"kubeapiHostAndPort": ["127.0.0.1:8080"],
 	"kubeapiHealthCheckTimeoutInMilliSecond": 1000,
 	"singletonLockTimeoutInMilliSecond": 5000,
-	"singletonLockWaitingAfterBeingCandidateInMilliSecond": 5000
+	"singletonLockWaitingAfterBeingCandidateInMilliSecond": 5000,
+	"cloudoneProtocol": "https",
+	"cloudoneHost": "127.0.0.1",
+	"cloudonePort": 8081
 }
 `
 

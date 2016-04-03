@@ -29,7 +29,7 @@ func registerWebServiceHistoricalEvent() {
 	ws.Produces(restful.MIME_JSON)
 	restful.Add(ws)
 
-	ws.Route(ws.GET("/").To(getAllHistoricalEvent).
+	ws.Route(ws.GET("/").Filter(authorize).To(getAllHistoricalEvent).
 		Doc("Get all historical events").
 		Param(ws.QueryParameter("from", "Time start from in RFC3339Nano formt").DataType("string")).
 		Param(ws.QueryParameter("to", "Time end to in RFC3339Nano formt").DataType("string")).
@@ -38,7 +38,7 @@ func registerWebServiceHistoricalEvent() {
 		Param(ws.QueryParameter("offset", "The offset from the result").DataType("int")).
 		Do(returns200JsonMap, returns400, returns404, returns500))
 
-	ws.Route(ws.GET("/{namespace}").To(getHistoricalEvent).
+	ws.Route(ws.GET("/{namespace}").Filter(authorize).To(getHistoricalEvent).
 		Doc("Get the historical events in the namespace").
 		Param(ws.PathParameter("namespace", "Kubernetes namespace").DataType("string")).
 		Param(ws.QueryParameter("from", "Time start from in RFC3339Nano formt").DataType("string")).
@@ -48,7 +48,7 @@ func registerWebServiceHistoricalEvent() {
 		Param(ws.QueryParameter("offset", "The offset from the result").DataType("int")).
 		Do(returns200JsonMap, returns400, returns404, returns500))
 
-	ws.Route(ws.PUT("/{namespace}/{id}").To(acknowledgeHistoricalEvent).
+	ws.Route(ws.PUT("/{namespace}/{id}").Filter(authorize).To(acknowledgeHistoricalEvent).
 		Doc("Acknowledge the historical events in the namespace").
 		Param(ws.PathParameter("namespace", "Kubernetes namespace").DataType("string")).
 		Param(ws.PathParameter("id", "Kubernetes event id").DataType("string")).
