@@ -141,7 +141,7 @@ func SearchHistoricalEvent(namespace string, from *time.Time,
 	}
 	`
 
-	byteSlice, err := searchKubernetesEventRawJson(indexKubernetesEventIndex, "*", query)
+	byteSlice, err := searchKubernetesEventRawJson(indexKubernetesEventIndex, namespace, query)
 	if err != nil {
 		log.Error(err)
 		return nil, err
