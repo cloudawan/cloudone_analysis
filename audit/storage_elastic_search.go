@@ -54,13 +54,20 @@ func createIndexTemplate() error {
 					"Component": {
 						"type": "string"
 					},
-					"Path": {
+					"Kind": {
 						"type": "string"
 					},
 					"Path": {
 						"type": "string"
 					},
 					"UserName": {
+						"type": "string"
+					},
+					"RemoteAddress": {
+						"type": "string",
+						"index": "not_analyzed"
+					},
+					"RemoteHost": {
 						"type": "string"
 					},
 					"CreatedTime": {

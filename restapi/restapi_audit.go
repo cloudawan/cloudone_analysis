@@ -29,19 +29,20 @@ func auditLog(req *restful.Request, resp *restful.Response, chain *restful.Filte
 	path := req.SelectedRoutePath()
 	queryParameterMap := req.Request.URL.Query()
 	pathParameterMap := req.PathParameters()
+	remoteAddress := req.Request.RemoteAddr
 
 	requestBody, _ := ioutil.ReadAll(req.Request.Body)
 	// Write data back for the later use
 	req.Request.Body = ioutil.NopCloser(bytes.NewReader(requestBody))
 
 	go func() {
-		sendAuditLog(token, requestURI, method, path, string(requestBody), queryParameterMap, pathParameterMap)
+		sendAuditLog(token, requestURI, method, path, string(requestBody), queryParameterMap, pathParameterMap, remoteAddress)
 	}()
 
 	chain.ProcessFilter(req, resp)
 }
 
-func sendAuditLog(token string, requestURI string, method string, path string, requestBody string, queryParameterMap map[string][]string, pathParameterMap map[string]string) {
+func sendAuditLog(token string, requestURI string, method string, path string, requestBody string, queryParameterMap map[string][]string, pathParameterMap map[string]string, remoteAddress string) {
 	// Get cache. If not exsiting, retrieving from authorization server.
 	user, err := getCache(token)
 	userName := ""
@@ -54,7 +55,7 @@ func sendAuditLog(token string, requestURI string, method string, path string, r
 	}
 
 	// Header is not used since the header has no useful information for now
-	auditLog := utilityaudit.CreateAuditLog(componentName, path, userName, queryParameterMap, pathParameterMap, method, requestURI, requestBody, nil)
+	auditLog := utilityaudit.CreateAuditLog(componentName, path, userName, remoteAddress, queryParameterMap, pathParameterMap, method, requestURI, requestBody, nil)
 
 	err = audit.SaveAudit(auditLog, false)
 	if err != nil {

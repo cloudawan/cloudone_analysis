@@ -115,6 +115,8 @@ func SearchAuditLog(userName string, from *time.Time, to *time.Time, size int,
 			kind, _ := sourceJsonMap["Kind"].(string)
 			path, _ := sourceJsonMap["Path"].(string)
 			userName, _ := sourceJsonMap["UserName"].(string)
+			remoteAddress, _ := sourceJsonMap["RemoteAddress"].(string)
+			remoteHost, _ := sourceJsonMap["RemoteHost"].(string)
 			createdTimeText, _ := sourceJsonMap["CreatedTime"].(string)
 			createdTime, _ := time.Parse(time.RFC3339Nano, createdTimeText)
 			queryParameterJsonMap, _ := sourceJsonMap["QueryParameterMap"].(map[string]interface{})
@@ -154,6 +156,8 @@ func SearchAuditLog(userName string, from *time.Time, to *time.Time, size int,
 				kind,
 				path,
 				userName,
+				remoteAddress,
+				remoteHost,
 				createdTime,
 				queryParameterMap,
 				pathParameterMap,

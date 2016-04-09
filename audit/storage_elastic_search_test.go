@@ -20,7 +20,7 @@ import (
 	"github.com/cloudawan/cloudone_utility/audit"
 	"testing"
 )
-
+*/
 /*
 func TestGetAuditLog(t *testing.T) {
 	fmt.Println(GetAuditLog("admin", "1460177558_1460177558072337023"))
