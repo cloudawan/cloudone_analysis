@@ -16,50 +16,48 @@ package restapi
 
 import (
 	"fmt"
-	"github.com/cloudawan/cloudone_analysis/event"
+	"github.com/cloudawan/cloudone_analysis/audit"
+	utilityaudit "github.com/cloudawan/cloudone_utility/audit"
 	"github.com/emicklei/go-restful"
+	"net/http"
 	"strconv"
 	"time"
 )
 
-func registerWebServiceHistoricalEvent() {
+func registerWebServiceAudit() {
 	ws := new(restful.WebService)
-	ws.Path("/api/v1/historicalevents")
+	ws.Path("/api/v1/auditlogs")
 	ws.Consumes(restful.MIME_JSON)
 	ws.Produces(restful.MIME_JSON)
 	restful.Add(ws)
 
-	ws.Route(ws.GET("/").Filter(authorize).Filter(auditLog).To(getAllHistoricalEvent).
-		Doc("Get all historical events").
+	ws.Route(ws.GET("/").Filter(authorize).Filter(auditLog).To(getAllAuditLog).
+		Doc("Get all audit logs").
 		Param(ws.QueryParameter("from", "Time start from in RFC3339Nano formt").DataType("string")).
 		Param(ws.QueryParameter("to", "Time end to in RFC3339Nano formt").DataType("string")).
-		Param(ws.QueryParameter("acknowledge", "Already acknowledged or not").DataType("boolean")).
 		Param(ws.QueryParameter("size", "The amount of data to return").DataType("int")).
 		Param(ws.QueryParameter("offset", "The offset from the result").DataType("int")).
-		Do(returns200JsonMap, returns400, returns404, returns500))
+		Do(returns200AuditLogSlice, returns400, returns404, returns500))
 
-	ws.Route(ws.GET("/{namespace}").Filter(authorize).Filter(auditLog).To(getHistoricalEvent).
-		Doc("Get the historical events in the namespace").
-		Param(ws.PathParameter("namespace", "Kubernetes namespace").DataType("string")).
+	// Don't audit itself to prevent loop. Also, this is used only by system
+	ws.Route(ws.POST("/").Filter(authorize).To(postAuditLog).
+		Doc("Create the audit log").
+		Do(returns200, returns404, returns500).
+		Reads(utilityaudit.AuditLog{}))
+
+	ws.Route(ws.GET("/{user}").Filter(authorize).Filter(auditLog).To(getAuditLog).
+		Doc("Get the audit logs belonging to the user").
+		Param(ws.PathParameter("user", "User name").DataType("string")).
 		Param(ws.QueryParameter("from", "Time start from in RFC3339Nano formt").DataType("string")).
 		Param(ws.QueryParameter("to", "Time end to in RFC3339Nano formt").DataType("string")).
-		Param(ws.QueryParameter("acknowledge", "Already acknowledged or not").DataType("boolean")).
 		Param(ws.QueryParameter("size", "The amount of data to return").DataType("int")).
 		Param(ws.QueryParameter("offset", "The offset from the result").DataType("int")).
-		Do(returns200JsonMap, returns400, returns404, returns500))
-
-	ws.Route(ws.PUT("/{namespace}/{id}").Filter(authorize).Filter(auditLog).To(acknowledgeHistoricalEvent).
-		Doc("Acknowledge the historical events in the namespace").
-		Param(ws.PathParameter("namespace", "Kubernetes namespace").DataType("string")).
-		Param(ws.PathParameter("id", "Kubernetes event id").DataType("string")).
-		Param(ws.QueryParameter("acknowledge", "acknowledge or unacknowledge").DataType("boolean")).
-		Do(returns200, returns400, returns404, returns500))
+		Do(returns200AuditLogSlice, returns400, returns404, returns500))
 }
 
-func getAllHistoricalEvent(request *restful.Request, response *restful.Response) {
+func getAllAuditLog(request *restful.Request, response *restful.Response) {
 	fromText := request.QueryParameter("from")
 	toText := request.QueryParameter("to")
-	acknowledgeText := request.QueryParameter("acknowledge")
 	sizeText := request.QueryParameter("size")
 	offsetText := request.QueryParameter("offset")
 
@@ -93,14 +91,6 @@ func getAllHistoricalEvent(request *restful.Request, response *restful.Response)
 		}
 	}
 
-	acknowledge, err := strconv.ParseBool(acknowledgeText)
-	if err != nil {
-		errorText := fmt.Sprintf("Parse from %s with error %s", acknowledgeText, err)
-		log.Error(errorText)
-		response.WriteErrorString(400, `{"Error": "`+errorText+`"}`)
-		return
-	}
-
 	size, err := strconv.Atoi(sizeText)
 	if err != nil {
 		errorText := fmt.Sprintf("Parse from %s with error %s", sizeText, err)
@@ -117,22 +107,21 @@ func getAllHistoricalEvent(request *restful.Request, response *restful.Response)
 		return
 	}
 
-	jsonMap, err := event.SearchHistoricalEvent("*", from, to, acknowledge, size, offset)
+	auditLogSlice, err := audit.SearchAuditLog("*", from, to, size, offset)
 	if err != nil {
-		errorText := fmt.Sprintf("Fail to get all historical events with error %s", err)
+		errorText := fmt.Sprintf("Fail to get all audit logs with error %s", err)
 		log.Error(errorText)
 		response.WriteErrorString(404, `{"Error": "`+errorText+`"}`)
 		return
 	}
 
-	response.WriteJson(jsonMap, "Json")
+	response.WriteJson(auditLogSlice, "[]AuditLog")
 }
 
-func getHistoricalEvent(request *restful.Request, response *restful.Response) {
-	namespace := request.PathParameter("namespace")
+func getAuditLog(request *restful.Request, response *restful.Response) {
+	user := request.PathParameter("user")
 	fromText := request.QueryParameter("from")
 	toText := request.QueryParameter("to")
-	acknowledgeText := request.QueryParameter("acknowledge")
 	sizeText := request.QueryParameter("size")
 	offsetText := request.QueryParameter("offset")
 
@@ -166,14 +155,6 @@ func getHistoricalEvent(request *restful.Request, response *restful.Response) {
 		}
 	}
 
-	acknowledge, err := strconv.ParseBool(acknowledgeText)
-	if err != nil {
-		errorText := fmt.Sprintf("Parse from %s with error %s", acknowledgeText, err)
-		log.Error(errorText)
-		response.WriteErrorString(400, `{"Error": "`+errorText+`"}`)
-		return
-	}
-
 	size, err := strconv.Atoi(sizeText)
 	if err != nil {
 		errorText := fmt.Sprintf("Parse from %s with error %s", sizeText, err)
@@ -190,35 +171,37 @@ func getHistoricalEvent(request *restful.Request, response *restful.Response) {
 		return
 	}
 
-	jsonSlice, err := event.SearchHistoricalEvent(namespace, from, to, acknowledge, size, offset)
+	auditLogSlice, err := audit.SearchAuditLog(user, from, to, size, offset)
 	if err != nil {
-		errorText := fmt.Sprintf("Fail to get all historical events with error %s", err)
+		errorText := fmt.Sprintf("Fail to get all audit belonging to user %s logs with error %s", user, err)
 		log.Error(errorText)
 		response.WriteErrorString(404, `{"Error": "`+errorText+`"}`)
 		return
 	}
 
-	response.WriteJson(jsonSlice, "Json")
+	response.WriteJson(auditLogSlice, "[]AuditLog")
 }
 
-func acknowledgeHistoricalEvent(request *restful.Request, response *restful.Response) {
-	namespace := request.PathParameter("namespace")
-	id := request.PathParameter("id")
-	acknowledgeText := request.QueryParameter("acknowledge")
+func postAuditLog(request *restful.Request, response *restful.Response) {
+	auditLog := &utilityaudit.AuditLog{}
+	err := request.ReadEntity(&auditLog)
 
-	acknowledge, err := strconv.ParseBool(acknowledgeText)
 	if err != nil {
-		errorText := fmt.Sprintf("Parse to %s with error %s", acknowledgeText, err)
+		errorText := fmt.Sprintf("POST Audit Log with error %s", err)
 		log.Error(errorText)
 		response.WriteErrorString(400, `{"Error": "`+errorText+`"}`)
 		return
 	}
 
-	err = event.Acknowledge(namespace, id, acknowledge)
+	err = audit.SaveAudit(auditLog, false)
 	if err != nil {
-		errorText := fmt.Sprintf("Fail to acknowledge historical events with error %s", err)
+		errorText := fmt.Sprintf("Fail to create audit log with error %s", err)
 		log.Error(errorText)
 		response.WriteErrorString(404, `{"Error": "`+errorText+`"}`)
 		return
 	}
+}
+
+func returns200AuditLogSlice(b *restful.RouteBuilder) {
+	b.Returns(http.StatusOK, "OK", []utilityaudit.AuditLog{})
 }

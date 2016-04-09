@@ -29,7 +29,7 @@ func registerWebServiceHistoricalReplicationControllerMetric() {
 	ws.Produces(restful.MIME_JSON)
 	restful.Add(ws)
 
-	ws.Route(ws.GET("/{namespace}").Filter(authorize).To(getAllHistoricalReplicationControllerMetric).
+	ws.Route(ws.GET("/{namespace}").Filter(authorize).Filter(auditLog).To(getAllHistoricalReplicationControllerMetric).
 		Doc("Get all historical replication controllers in the namespace").
 		Param(ws.PathParameter("namespace", "Kubernetes namespace").DataType("string")).
 		Param(ws.QueryParameter("from", "Time start from in RFC3339Nano formt").DataType("string")).
@@ -37,7 +37,7 @@ func registerWebServiceHistoricalReplicationControllerMetric() {
 		Param(ws.QueryParameter("aggregationAmount", "Aggregation amount").DataType("int")).
 		Do(returns200JsonMap, returns400, returns404, returns500))
 
-	ws.Route(ws.GET("/{namespace}/{replicationcontroller}").Filter(authorize).To(getHistoricalReplicationControllerMetric).
+	ws.Route(ws.GET("/{namespace}/{replicationcontroller}").Filter(authorize).Filter(auditLog).To(getHistoricalReplicationControllerMetric).
 		Doc("Get the historical replication controller in the namespace").
 		Param(ws.PathParameter("namespace", "Kubernetes namespace").DataType("string")).
 		Param(ws.PathParameter("replicationcontroller", "Kubernetes replication controller name").DataType("string")).

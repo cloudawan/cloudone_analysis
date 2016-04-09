@@ -28,7 +28,7 @@ func registerWebServiceHistoricalReplicationController() {
 	ws.Produces(restful.MIME_JSON)
 	restful.Add(ws)
 
-	ws.Route(ws.GET("/names/{namespace}").Filter(authorize).To(getAllHistoricalReplicationControllerName).
+	ws.Route(ws.GET("/names/{namespace}").Filter(authorize).Filter(auditLog).To(getAllHistoricalReplicationControllerName).
 		Doc("Get all historical replication controller names in the namespace").
 		Param(ws.PathParameter("namespace", "Kubernetes namespace").DataType("string")).
 		Do(returns200StringSlice, returns400, returns404, returns500))
