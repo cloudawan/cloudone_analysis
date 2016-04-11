@@ -82,7 +82,7 @@ func getCache(token string) (*rbac.User, error) {
 		user := &rbac.User{}
 		_, err := restclient.RequestGetWithStructure(url, &user, nil)
 		if err != nil {
-			log.Error(err)
+			log.Debug(err)
 			return nil, err
 		} else {
 			// Set Cache
