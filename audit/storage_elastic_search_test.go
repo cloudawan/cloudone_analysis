@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"github.com/cloudawan/cloudone_utility/audit"
 	"testing"
+	"time"
 )
 */
 /*
@@ -52,10 +53,15 @@ func TestSaveAuditLog(t *testing.T) {
 	requestURI := "https://192.168.0.17:8082/api/v1/historicalevents/default?acknowledge=false&size=100&offset=0"
 	requestBody := ""
 	requestHeader := make(map[string][]string)
+	requestSlice := make([]string, 0)
+	requestSlice = append(requestSlice, "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+	requestHeader["token"] = requestSlice
 
 	auditLog := audit.CreateAuditLog(
+		"cloudone",
 		"/api/v1/historicalevents/{namespace}",
 		userName,
+		"127.0.0.1",
 		queryParameterMap,
 		pathParameterMap,
 		requestMethod,

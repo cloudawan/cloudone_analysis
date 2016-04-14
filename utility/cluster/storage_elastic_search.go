@@ -23,6 +23,8 @@ import (
 
 func init() {
 	createIndexTemplate()
+	// Create index
+	connection.CreateIndex(indexClusterSingletonLock)
 }
 
 func createIndexTemplate() error {
