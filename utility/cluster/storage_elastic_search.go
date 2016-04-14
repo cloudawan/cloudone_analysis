@@ -24,6 +24,7 @@ import (
 func init() {
 	createIndexTemplate()
 	// Create index
+	connection := elasticsearch.ElasticSearchClient.GetConnection()
 	connection.CreateIndex(indexClusterSingletonLock)
 }
 
