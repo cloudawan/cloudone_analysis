@@ -21,6 +21,7 @@ import (
 	"github.com/cloudawan/cloudone_analysis/utility/database/elasticsearch"
 	"github.com/cloudawan/cloudone_utility/audit"
 	elasticsearchlib "github.com/cloudawan/cloudone_utility/database/elasticsearch"
+	"strings"
 )
 
 func init() {
@@ -128,11 +129,43 @@ func createIndexTemplate() error {
 	return nil
 }
 
+func checkFormatForElasticSearchData(auditLog *audit.AuditLog) {
+	if auditLog.PathParameterMap != nil {
+		for key, value := range auditLog.PathParameterMap {
+			if strings.Contains(key, ".") {
+				newKey := strings.Replace(key, ".", "_", -1)
+				auditLog.PathParameterMap[newKey] = value
+				delete(auditLog.PathParameterMap, key)
+			}
+		}
+	}
+	if auditLog.QueryParameterMap != nil {
+		for key, value := range auditLog.QueryParameterMap {
+			if strings.Contains(key, ".") {
+				newKey := strings.Replace(key, ".", "_", -1)
+				auditLog.QueryParameterMap[newKey] = value
+				delete(auditLog.QueryParameterMap, key)
+			}
+		}
+	}
+	if auditLog.RequestHeader != nil {
+		for key, value := range auditLog.RequestHeader {
+			if strings.Contains(key, ".") {
+				newKey := strings.Replace(key, ".", "_", -1)
+				auditLog.RequestHeader[newKey] = value
+				delete(auditLog.RequestHeader, key)
+			}
+		}
+	}
+}
+
 func SaveAudit(auditLog *audit.AuditLog, refreshForSearch bool) error {
+	checkFormatForElasticSearchData(auditLog)
 	id := fmt.Sprintf("%d_%d", auditLog.CreatedTime.Unix(), auditLog.CreatedTime.UnixNano())
 	connection := elasticsearch.ElasticSearchClient.GetConnection()
 	_, err := connection.Index(indexAuditLogIndex, auditLog.UserName, id, nil, auditLog)
 	if err != nil {
+		log.Debug(auditLog)
 		log.Error(err)
 		return err
 	} else {
