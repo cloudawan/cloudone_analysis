@@ -24,7 +24,7 @@ import (
 	"time"
 )
 
-func registerWebServiceAudit() {
+func registerWebServiceAuditLog() {
 	ws := new(restful.WebService)
 	ws.Path("/api/v1/auditlogs")
 	ws.Consumes(restful.MIME_JSON)
@@ -32,7 +32,7 @@ func registerWebServiceAudit() {
 	restful.Add(ws)
 
 	ws.Route(ws.GET("/").Filter(authorize).Filter(auditLog).To(getAllAuditLog).
-		Doc("Get all audit logs").
+		Doc("Get audit logs in the time range").
 		Param(ws.QueryParameter("from", "Time start from in RFC3339Nano formt").DataType("string")).
 		Param(ws.QueryParameter("to", "Time end to in RFC3339Nano formt").DataType("string")).
 		Param(ws.QueryParameter("size", "The amount of data to return").DataType("int")).
@@ -173,7 +173,7 @@ func getAuditLog(request *restful.Request, response *restful.Response) {
 
 	auditLogSlice, err := audit.SearchAuditLog(user, from, to, size, offset)
 	if err != nil {
-		errorText := fmt.Sprintf("Fail to get all audit belonging to user %s logs with error %s", user, err)
+		errorText := fmt.Sprintf("Fail to get all audit logs belonging to user %s logs with error %s", user, err)
 		log.Error(errorText)
 		response.WriteErrorString(404, `{"Error": "`+errorText+`"}`)
 		return

@@ -86,7 +86,7 @@ func SearchAuditLog(userName string, from *time.Time, to *time.Time, size int,
 	 		{ 
 				"CreatedTime" : "desc"
 			}
-    	],
+    		],
 		"size": ` + strconv.Itoa(size) + `,
 		"from": ` + strconv.Itoa(offset) + `
 	}
@@ -171,6 +171,7 @@ func SearchAuditLog(userName string, from *time.Time, to *time.Time, size int,
 		}
 		return auditLogSlice, nil
 	} else {
+		log.Error("Fail to get with byteSlice %s", string(byteSlice))
 		return nil, errors.New("Fail to get with byteSlice " + string(byteSlice))
 	}
 }
