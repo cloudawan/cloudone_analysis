@@ -28,7 +28,8 @@ func StartRestAPIServer() {
 	registerWebServiceHistoricalReplicationController()
 	registerWebServiceHistoricalEvent()
 	registerWebServiceHealthCheck()
-	registerWebServiceAudit()
+	registerWebServiceAuditLog()
+	registerWebServiceBuildLog()
 
 	// Place the method+path to description mapping to map for audit
 	for _, rws := range restful.DefaultContainer.RegisteredWebServices() {
