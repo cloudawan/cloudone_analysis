@@ -15,7 +15,7 @@
 package restapi
 
 import (
-	"fmt"
+	"encoding/json"
 	"github.com/cloudawan/cloudone_analysis/monitor"
 	"github.com/emicklei/go-restful"
 	"net/http"
@@ -31,7 +31,7 @@ func registerWebServiceHistoricalReplicationController() {
 	ws.Route(ws.GET("/names/{namespace}").Filter(authorize).Filter(auditLog).To(getAllHistoricalReplicationControllerName).
 		Doc("Get all historical replication controller names in the namespace").
 		Param(ws.PathParameter("namespace", "Kubernetes namespace").DataType("string")).
-		Do(returns200StringSlice, returns400, returns404, returns500))
+		Do(returns200StringSlice, returns404, returns500))
 }
 
 func getAllHistoricalReplicationControllerName(request *restful.Request, response *restful.Response) {
@@ -39,9 +39,13 @@ func getAllHistoricalReplicationControllerName(request *restful.Request, respons
 
 	nameSlice, err := monitor.GetAllReplicationControllerNameInNameSpace(namespace)
 	if err != nil {
-		errorText := fmt.Sprintf("Fail to get all historical replication controller name with error %s", err)
-		log.Error(errorText)
-		response.WriteErrorString(404, `{"Error": "`+errorText+`"}`)
+		jsonMap := make(map[string]interface{})
+		jsonMap["Error"] = "Get all hittorical replication controller name in the namespace failure"
+		jsonMap["ErrorMessage"] = err.Error()
+		jsonMap["namespace"] = namespace
+		errorMessageByteSlice, _ := json.Marshal(jsonMap)
+		log.Error(jsonMap)
+		response.WriteErrorString(404, string(errorMessageByteSlice))
 		return
 	}
 

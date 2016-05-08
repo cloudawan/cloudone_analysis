@@ -15,7 +15,7 @@
 package restapi
 
 import (
-	"fmt"
+	"encoding/json"
 	"github.com/cloudawan/cloudone_analysis/event"
 	"github.com/emicklei/go-restful"
 	"strconv"
@@ -53,7 +53,7 @@ func registerWebServiceHistoricalEvent() {
 		Param(ws.PathParameter("namespace", "Kubernetes namespace").DataType("string")).
 		Param(ws.PathParameter("id", "Kubernetes event id").DataType("string")).
 		Param(ws.QueryParameter("acknowledge", "acknowledge or unacknowledge").DataType("boolean")).
-		Do(returns200, returns400, returns404, returns500))
+		Do(returns200, returns400, returns422, returns500))
 }
 
 func getAllHistoricalEvent(request *restful.Request, response *restful.Response) {
@@ -69,9 +69,13 @@ func getAllHistoricalEvent(request *restful.Request, response *restful.Response)
 	} else {
 		fromValue, err := time.Parse(time.RFC3339Nano, fromText)
 		if err != nil {
-			errorText := fmt.Sprintf("Parse from %s with error %s", fromText, err)
-			log.Error(errorText)
-			response.WriteErrorString(400, `{"Error": "`+errorText+`"}`)
+			jsonMap := make(map[string]interface{})
+			jsonMap["Error"] = "Could not parse fromText"
+			jsonMap["ErrorMessage"] = err.Error()
+			jsonMap["fromText"] = fromText
+			errorMessageByteSlice, _ := json.Marshal(jsonMap)
+			log.Error(jsonMap)
+			response.WriteErrorString(400, string(errorMessageByteSlice))
 			return
 		} else {
 			from = &fromValue
@@ -84,9 +88,13 @@ func getAllHistoricalEvent(request *restful.Request, response *restful.Response)
 	} else {
 		toValue, err := time.Parse(time.RFC3339Nano, toText)
 		if err != nil {
-			errorText := fmt.Sprintf("Parse from %s with error %s", toText, err)
-			log.Error(errorText)
-			response.WriteErrorString(400, `{"Error": "`+errorText+`"}`)
+			jsonMap := make(map[string]interface{})
+			jsonMap["Error"] = "Could not parse toText"
+			jsonMap["ErrorMessage"] = err.Error()
+			jsonMap["toText"] = toText
+			errorMessageByteSlice, _ := json.Marshal(jsonMap)
+			log.Error(jsonMap)
+			response.WriteErrorString(400, string(errorMessageByteSlice))
 			return
 		} else {
 			to = &toValue
@@ -95,33 +103,53 @@ func getAllHistoricalEvent(request *restful.Request, response *restful.Response)
 
 	acknowledge, err := strconv.ParseBool(acknowledgeText)
 	if err != nil {
-		errorText := fmt.Sprintf("Parse from %s with error %s", acknowledgeText, err)
-		log.Error(errorText)
-		response.WriteErrorString(400, `{"Error": "`+errorText+`"}`)
+		jsonMap := make(map[string]interface{})
+		jsonMap["Error"] = "Could not parse acknowledgeText"
+		jsonMap["ErrorMessage"] = err.Error()
+		jsonMap["acknowledgeText"] = acknowledgeText
+		errorMessageByteSlice, _ := json.Marshal(jsonMap)
+		log.Error(jsonMap)
+		response.WriteErrorString(400, string(errorMessageByteSlice))
 		return
 	}
 
 	size, err := strconv.Atoi(sizeText)
 	if err != nil {
-		errorText := fmt.Sprintf("Parse from %s with error %s", sizeText, err)
-		log.Error(errorText)
-		response.WriteErrorString(400, `{"Error": "`+errorText+`"}`)
+		jsonMap := make(map[string]interface{})
+		jsonMap["Error"] = "Could not parse sizeText"
+		jsonMap["ErrorMessage"] = err.Error()
+		jsonMap["sizeText"] = sizeText
+		errorMessageByteSlice, _ := json.Marshal(jsonMap)
+		log.Error(jsonMap)
+		response.WriteErrorString(400, string(errorMessageByteSlice))
 		return
 	}
 
 	offset, err := strconv.Atoi(offsetText)
 	if err != nil {
-		errorText := fmt.Sprintf("Parse from %s with error %s", offsetText, err)
-		log.Error(errorText)
-		response.WriteErrorString(400, `{"Error": "`+errorText+`"}`)
+		jsonMap := make(map[string]interface{})
+		jsonMap["Error"] = "Could not parse offsetText"
+		jsonMap["ErrorMessage"] = err.Error()
+		jsonMap["offsetText"] = offsetText
+		errorMessageByteSlice, _ := json.Marshal(jsonMap)
+		log.Error(jsonMap)
+		response.WriteErrorString(400, string(errorMessageByteSlice))
 		return
 	}
 
 	jsonMap, err := event.SearchHistoricalEvent("*", from, to, acknowledge, size, offset)
 	if err != nil {
-		errorText := fmt.Sprintf("Fail to get all historical events with error %s", err)
-		log.Error(errorText)
-		response.WriteErrorString(404, `{"Error": "`+errorText+`"}`)
+		jsonMap := make(map[string]interface{})
+		jsonMap["Error"] = "Get historical event with the criteria failure"
+		jsonMap["ErrorMessage"] = err.Error()
+		jsonMap["from"] = from
+		jsonMap["to"] = to
+		jsonMap["acknowledge"] = acknowledge
+		jsonMap["size"] = size
+		jsonMap["offset"] = offset
+		errorMessageByteSlice, _ := json.Marshal(jsonMap)
+		log.Error(jsonMap)
+		response.WriteErrorString(404, string(errorMessageByteSlice))
 		return
 	}
 
@@ -142,9 +170,13 @@ func getHistoricalEvent(request *restful.Request, response *restful.Response) {
 	} else {
 		fromValue, err := time.Parse(time.RFC3339Nano, fromText)
 		if err != nil {
-			errorText := fmt.Sprintf("Parse from %s with error %s", fromText, err)
-			log.Error(errorText)
-			response.WriteErrorString(400, `{"Error": "`+errorText+`"}`)
+			jsonMap := make(map[string]interface{})
+			jsonMap["Error"] = "Could not parse fromText"
+			jsonMap["ErrorMessage"] = err.Error()
+			jsonMap["fromText"] = fromText
+			errorMessageByteSlice, _ := json.Marshal(jsonMap)
+			log.Error(jsonMap)
+			response.WriteErrorString(400, string(errorMessageByteSlice))
 			return
 		} else {
 			from = &fromValue
@@ -157,9 +189,13 @@ func getHistoricalEvent(request *restful.Request, response *restful.Response) {
 	} else {
 		toValue, err := time.Parse(time.RFC3339Nano, toText)
 		if err != nil {
-			errorText := fmt.Sprintf("Parse from %s with error %s", toText, err)
-			log.Error(errorText)
-			response.WriteErrorString(400, `{"Error": "`+errorText+`"}`)
+			jsonMap := make(map[string]interface{})
+			jsonMap["Error"] = "Could not parse toText"
+			jsonMap["ErrorMessage"] = err.Error()
+			jsonMap["toText"] = toText
+			errorMessageByteSlice, _ := json.Marshal(jsonMap)
+			log.Error(jsonMap)
+			response.WriteErrorString(400, string(errorMessageByteSlice))
 			return
 		} else {
 			to = &toValue
@@ -168,33 +204,54 @@ func getHistoricalEvent(request *restful.Request, response *restful.Response) {
 
 	acknowledge, err := strconv.ParseBool(acknowledgeText)
 	if err != nil {
-		errorText := fmt.Sprintf("Parse from %s with error %s", acknowledgeText, err)
-		log.Error(errorText)
-		response.WriteErrorString(400, `{"Error": "`+errorText+`"}`)
+		jsonMap := make(map[string]interface{})
+		jsonMap["Error"] = "Could not parse acknowledgeText"
+		jsonMap["ErrorMessage"] = err.Error()
+		jsonMap["acknowledgeText"] = acknowledgeText
+		errorMessageByteSlice, _ := json.Marshal(jsonMap)
+		log.Error(jsonMap)
+		response.WriteErrorString(400, string(errorMessageByteSlice))
 		return
 	}
 
 	size, err := strconv.Atoi(sizeText)
 	if err != nil {
-		errorText := fmt.Sprintf("Parse from %s with error %s", sizeText, err)
-		log.Error(errorText)
-		response.WriteErrorString(400, `{"Error": "`+errorText+`"}`)
+		jsonMap := make(map[string]interface{})
+		jsonMap["Error"] = "Could not parse sizeText"
+		jsonMap["ErrorMessage"] = err.Error()
+		jsonMap["sizeText"] = sizeText
+		errorMessageByteSlice, _ := json.Marshal(jsonMap)
+		log.Error(jsonMap)
+		response.WriteErrorString(400, string(errorMessageByteSlice))
 		return
 	}
 
 	offset, err := strconv.Atoi(offsetText)
 	if err != nil {
-		errorText := fmt.Sprintf("Parse from %s with error %s", offsetText, err)
-		log.Error(errorText)
-		response.WriteErrorString(400, `{"Error": "`+errorText+`"}`)
+		jsonMap := make(map[string]interface{})
+		jsonMap["Error"] = "Could not parse offsetText"
+		jsonMap["ErrorMessage"] = err.Error()
+		jsonMap["offsetText"] = offsetText
+		errorMessageByteSlice, _ := json.Marshal(jsonMap)
+		log.Error(jsonMap)
+		response.WriteErrorString(400, string(errorMessageByteSlice))
 		return
 	}
 
 	jsonSlice, err := event.SearchHistoricalEvent(namespace, from, to, acknowledge, size, offset)
 	if err != nil {
-		errorText := fmt.Sprintf("Fail to get all historical events with error %s", err)
-		log.Error(errorText)
-		response.WriteErrorString(404, `{"Error": "`+errorText+`"}`)
+		jsonMap := make(map[string]interface{})
+		jsonMap["Error"] = "Get historical event belonging to namespace with the criteria failure"
+		jsonMap["ErrorMessage"] = err.Error()
+		jsonMap["namespace"] = namespace
+		jsonMap["from"] = from
+		jsonMap["to"] = to
+		jsonMap["acknowledge"] = acknowledge
+		jsonMap["size"] = size
+		jsonMap["offset"] = offset
+		errorMessageByteSlice, _ := json.Marshal(jsonMap)
+		log.Error(jsonMap)
+		response.WriteErrorString(404, string(errorMessageByteSlice))
 		return
 	}
 
@@ -208,17 +265,26 @@ func acknowledgeHistoricalEvent(request *restful.Request, response *restful.Resp
 
 	acknowledge, err := strconv.ParseBool(acknowledgeText)
 	if err != nil {
-		errorText := fmt.Sprintf("Parse to %s with error %s", acknowledgeText, err)
-		log.Error(errorText)
-		response.WriteErrorString(400, `{"Error": "`+errorText+`"}`)
+		jsonMap := make(map[string]interface{})
+		jsonMap["Error"] = "Could not parse acknowledgeText"
+		jsonMap["ErrorMessage"] = err.Error()
+		jsonMap["acknowledgeText"] = acknowledgeText
+		errorMessageByteSlice, _ := json.Marshal(jsonMap)
+		log.Error(jsonMap)
+		response.WriteErrorString(400, string(errorMessageByteSlice))
 		return
 	}
 
 	err = event.Acknowledge(namespace, id, acknowledge)
 	if err != nil {
-		errorText := fmt.Sprintf("Fail to acknowledge historical events with error %s", err)
-		log.Error(errorText)
-		response.WriteErrorString(404, `{"Error": "`+errorText+`"}`)
+		jsonMap := make(map[string]interface{})
+		jsonMap["Error"] = "Acknowledge historical event failure"
+		jsonMap["ErrorMessage"] = err.Error()
+		jsonMap["namespace"] = namespace
+		jsonMap["id"] = id
+		errorMessageByteSlice, _ := json.Marshal(jsonMap)
+		log.Error(jsonMap)
+		response.WriteErrorString(422, string(errorMessageByteSlice))
 		return
 	}
 }

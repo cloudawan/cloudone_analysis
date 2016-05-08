@@ -15,7 +15,7 @@
 package restapi
 
 import (
-	"fmt"
+	"encoding/json"
 	"github.com/cloudawan/cloudone_analysis/monitor"
 	"github.com/emicklei/go-restful"
 	"strconv"
@@ -55,33 +55,53 @@ func getAllHistoricalReplicationControllerMetric(request *restful.Request, respo
 
 	from, err := time.Parse(time.RFC3339Nano, fromText)
 	if err != nil {
-		errorText := fmt.Sprintf("Parse from %s with error %s", fromText, err)
-		log.Error(errorText)
-		response.WriteErrorString(400, `{"Error": "`+errorText+`"}`)
+		jsonMap := make(map[string]interface{})
+		jsonMap["Error"] = "Could not parse fromText"
+		jsonMap["ErrorMessage"] = err.Error()
+		jsonMap["fromText"] = fromText
+		errorMessageByteSlice, _ := json.Marshal(jsonMap)
+		log.Error(jsonMap)
+		response.WriteErrorString(400, string(errorMessageByteSlice))
+		return
 	}
 
 	to, err := time.Parse(time.RFC3339Nano, toText)
 	if err != nil {
-		errorText := fmt.Sprintf("Parse to %s with error %s", toText, err)
-		log.Error(errorText)
-		response.WriteErrorString(400, `{"Error": "`+errorText+`"}`)
+		jsonMap := make(map[string]interface{})
+		jsonMap["Error"] = "Could not parse toText"
+		jsonMap["ErrorMessage"] = err.Error()
+		jsonMap["toText"] = toText
+		errorMessageByteSlice, _ := json.Marshal(jsonMap)
+		log.Error(jsonMap)
+		response.WriteErrorString(400, string(errorMessageByteSlice))
 		return
 	}
 
 	aggregationAmount, err := strconv.Atoi(aggregationAmountText)
 	if err != nil {
-		errorText := fmt.Sprintf("Parse aggregation amount %s with error %s", aggregationAmountText, err)
-		log.Error(errorText)
-		response.WriteErrorString(400, `{"Error": "`+errorText+`"}`)
+		jsonMap := make(map[string]interface{})
+		jsonMap["Error"] = "Could not parse aggregationAmountText"
+		jsonMap["ErrorMessage"] = err.Error()
+		jsonMap["aggregationAmountText"] = aggregationAmountText
+		errorMessageByteSlice, _ := json.Marshal(jsonMap)
+		log.Error(jsonMap)
+		response.WriteErrorString(400, string(errorMessageByteSlice))
 		return
 	}
 
 	jsonMap, err := monitor.GetAllHistoricalReplicationControllerMetrics(
 		namespace, aggregationAmount, from, to)
 	if err != nil {
-		errorText := fmt.Sprintf("Fail to get all historical replication controller metrics with error %s", err)
-		log.Error(errorText)
-		response.WriteErrorString(404, `{"Error": "`+errorText+`"}`)
+		jsonMap := make(map[string]interface{})
+		jsonMap["Error"] = "Get historical replication controller metrics with the criteria failure"
+		jsonMap["ErrorMessage"] = err.Error()
+		jsonMap["namespace"] = namespace
+		jsonMap["from"] = from
+		jsonMap["to"] = to
+		jsonMap["aggregationAmount"] = aggregationAmount
+		errorMessageByteSlice, _ := json.Marshal(jsonMap)
+		log.Error(jsonMap)
+		response.WriteErrorString(404, string(errorMessageByteSlice))
 		return
 	}
 
@@ -97,34 +117,54 @@ func getHistoricalReplicationControllerMetric(request *restful.Request, response
 
 	from, err := time.Parse(time.RFC3339Nano, fromText)
 	if err != nil {
-		errorText := fmt.Sprintf("Parse from %s with error %s", fromText, err)
-		log.Error(errorText)
-		response.WriteErrorString(400, `{"Error": "`+errorText+`"}`)
+		jsonMap := make(map[string]interface{})
+		jsonMap["Error"] = "Could not parse fromText"
+		jsonMap["ErrorMessage"] = err.Error()
+		jsonMap["fromText"] = fromText
+		errorMessageByteSlice, _ := json.Marshal(jsonMap)
+		log.Error(jsonMap)
+		response.WriteErrorString(400, string(errorMessageByteSlice))
 		return
 	}
 
 	to, err := time.Parse(time.RFC3339Nano, toText)
 	if err != nil {
-		errorText := fmt.Sprintf("Parse to %s with error %s", toText, err)
-		log.Error(errorText)
-		response.WriteErrorString(400, `{"Error": "`+errorText+`"}`)
+		jsonMap := make(map[string]interface{})
+		jsonMap["Error"] = "Could not parse toText"
+		jsonMap["ErrorMessage"] = err.Error()
+		jsonMap["toText"] = toText
+		errorMessageByteSlice, _ := json.Marshal(jsonMap)
+		log.Error(jsonMap)
+		response.WriteErrorString(400, string(errorMessageByteSlice))
 		return
 	}
 
 	aggregationAmount, err := strconv.Atoi(aggregationAmountText)
 	if err != nil {
-		errorText := fmt.Sprintf("Parse aggregation amount %s with error %s", aggregationAmountText, err)
-		log.Error(errorText)
-		response.WriteErrorString(400, `{"Error": "`+errorText+`"}`)
+		jsonMap := make(map[string]interface{})
+		jsonMap["Error"] = "Could not parse aggregationAmountText"
+		jsonMap["ErrorMessage"] = err.Error()
+		jsonMap["aggregationAmountText"] = aggregationAmountText
+		errorMessageByteSlice, _ := json.Marshal(jsonMap)
+		log.Error(jsonMap)
+		response.WriteErrorString(400, string(errorMessageByteSlice))
 		return
 	}
 
 	jsonMap, err := monitor.GetHistoricalReplicationControllerMetrics(
 		namespace, replicationControllerName, aggregationAmount, from, to)
 	if err != nil {
-		errorText := fmt.Sprintf("Fail to get historical replication controller metrics with error %s", err)
-		log.Error(errorText)
-		response.WriteErrorString(404, `{"Error": "`+errorText+`"}`)
+		jsonMap := make(map[string]interface{})
+		jsonMap["Error"] = "Get historical replication controller metrics with the criteria failure"
+		jsonMap["ErrorMessage"] = err.Error()
+		jsonMap["namespace"] = namespace
+		jsonMap["replicationControllerName"] = replicationControllerName
+		jsonMap["from"] = from
+		jsonMap["to"] = to
+		jsonMap["aggregationAmount"] = aggregationAmount
+		errorMessageByteSlice, _ := json.Marshal(jsonMap)
+		log.Error(jsonMap)
+		response.WriteErrorString(404, string(errorMessageByteSlice))
 		return
 	}
 

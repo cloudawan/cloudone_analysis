@@ -15,7 +15,7 @@
 package restapi
 
 import (
-	"fmt"
+	"encoding/json"
 	"github.com/cloudawan/cloudone_analysis/audit"
 	utilityaudit "github.com/cloudawan/cloudone_utility/audit"
 	"github.com/emicklei/go-restful"
@@ -42,7 +42,7 @@ func registerWebServiceAuditLog() {
 	// Don't audit itself to prevent loop. Also, this is used only by system
 	ws.Route(ws.POST("/").Filter(authorize).To(postAuditLog).
 		Doc("Create the audit log").
-		Do(returns200, returns404, returns500).
+		Do(returns200, returns400, returns422, returns500).
 		Reads(utilityaudit.AuditLog{}))
 
 	ws.Route(ws.GET("/{user}").Filter(authorize).Filter(auditLog).To(getAuditLog).
@@ -67,9 +67,13 @@ func getAllAuditLog(request *restful.Request, response *restful.Response) {
 	} else {
 		fromValue, err := time.Parse(time.RFC3339Nano, fromText)
 		if err != nil {
-			errorText := fmt.Sprintf("Parse from %s with error %s", fromText, err)
-			log.Error(errorText)
-			response.WriteErrorString(400, `{"Error": "`+errorText+`"}`)
+			jsonMap := make(map[string]interface{})
+			jsonMap["Error"] = "Could not parse fromText"
+			jsonMap["ErrorMessage"] = err.Error()
+			jsonMap["fromText"] = fromText
+			errorMessageByteSlice, _ := json.Marshal(jsonMap)
+			log.Error(jsonMap)
+			response.WriteErrorString(400, string(errorMessageByteSlice))
 			return
 		} else {
 			from = &fromValue
@@ -82,9 +86,13 @@ func getAllAuditLog(request *restful.Request, response *restful.Response) {
 	} else {
 		toValue, err := time.Parse(time.RFC3339Nano, toText)
 		if err != nil {
-			errorText := fmt.Sprintf("Parse from %s with error %s", toText, err)
-			log.Error(errorText)
-			response.WriteErrorString(400, `{"Error": "`+errorText+`"}`)
+			jsonMap := make(map[string]interface{})
+			jsonMap["Error"] = "Could not parse toText"
+			jsonMap["ErrorMessage"] = err.Error()
+			jsonMap["toText"] = toText
+			errorMessageByteSlice, _ := json.Marshal(jsonMap)
+			log.Error(jsonMap)
+			response.WriteErrorString(400, string(errorMessageByteSlice))
 			return
 		} else {
 			to = &toValue
@@ -93,25 +101,40 @@ func getAllAuditLog(request *restful.Request, response *restful.Response) {
 
 	size, err := strconv.Atoi(sizeText)
 	if err != nil {
-		errorText := fmt.Sprintf("Parse from %s with error %s", sizeText, err)
-		log.Error(errorText)
-		response.WriteErrorString(400, `{"Error": "`+errorText+`"}`)
+		jsonMap := make(map[string]interface{})
+		jsonMap["Error"] = "Could not parse sizeText"
+		jsonMap["ErrorMessage"] = err.Error()
+		jsonMap["sizeText"] = sizeText
+		errorMessageByteSlice, _ := json.Marshal(jsonMap)
+		log.Error(jsonMap)
+		response.WriteErrorString(400, string(errorMessageByteSlice))
 		return
 	}
 
 	offset, err := strconv.Atoi(offsetText)
 	if err != nil {
-		errorText := fmt.Sprintf("Parse from %s with error %s", offsetText, err)
-		log.Error(errorText)
-		response.WriteErrorString(400, `{"Error": "`+errorText+`"}`)
+		jsonMap := make(map[string]interface{})
+		jsonMap["Error"] = "Could not parse offsetText"
+		jsonMap["ErrorMessage"] = err.Error()
+		jsonMap["offsetText"] = offsetText
+		errorMessageByteSlice, _ := json.Marshal(jsonMap)
+		log.Error(jsonMap)
+		response.WriteErrorString(400, string(errorMessageByteSlice))
 		return
 	}
 
 	auditLogSlice, err := audit.SearchAuditLog("*", from, to, size, offset)
 	if err != nil {
-		errorText := fmt.Sprintf("Fail to get all audit logs with error %s", err)
-		log.Error(errorText)
-		response.WriteErrorString(404, `{"Error": "`+errorText+`"}`)
+		jsonMap := make(map[string]interface{})
+		jsonMap["Error"] = "Get all services with the criteria failure"
+		jsonMap["ErrorMessage"] = err.Error()
+		jsonMap["from"] = from
+		jsonMap["to"] = to
+		jsonMap["size"] = size
+		jsonMap["offset"] = offset
+		errorMessageByteSlice, _ := json.Marshal(jsonMap)
+		log.Error(jsonMap)
+		response.WriteErrorString(404, string(errorMessageByteSlice))
 		return
 	}
 
@@ -131,9 +154,13 @@ func getAuditLog(request *restful.Request, response *restful.Response) {
 	} else {
 		fromValue, err := time.Parse(time.RFC3339Nano, fromText)
 		if err != nil {
-			errorText := fmt.Sprintf("Parse from %s with error %s", fromText, err)
-			log.Error(errorText)
-			response.WriteErrorString(400, `{"Error": "`+errorText+`"}`)
+			jsonMap := make(map[string]interface{})
+			jsonMap["Error"] = "Could not parse fromText"
+			jsonMap["ErrorMessage"] = err.Error()
+			jsonMap["fromText"] = fromText
+			errorMessageByteSlice, _ := json.Marshal(jsonMap)
+			log.Error(jsonMap)
+			response.WriteErrorString(400, string(errorMessageByteSlice))
 			return
 		} else {
 			from = &fromValue
@@ -146,9 +173,13 @@ func getAuditLog(request *restful.Request, response *restful.Response) {
 	} else {
 		toValue, err := time.Parse(time.RFC3339Nano, toText)
 		if err != nil {
-			errorText := fmt.Sprintf("Parse from %s with error %s", toText, err)
-			log.Error(errorText)
-			response.WriteErrorString(400, `{"Error": "`+errorText+`"}`)
+			jsonMap := make(map[string]interface{})
+			jsonMap["Error"] = "Could not parse toText"
+			jsonMap["ErrorMessage"] = err.Error()
+			jsonMap["toText"] = toText
+			errorMessageByteSlice, _ := json.Marshal(jsonMap)
+			log.Error(jsonMap)
+			response.WriteErrorString(400, string(errorMessageByteSlice))
 			return
 		} else {
 			to = &toValue
@@ -157,25 +188,41 @@ func getAuditLog(request *restful.Request, response *restful.Response) {
 
 	size, err := strconv.Atoi(sizeText)
 	if err != nil {
-		errorText := fmt.Sprintf("Parse from %s with error %s", sizeText, err)
-		log.Error(errorText)
-		response.WriteErrorString(400, `{"Error": "`+errorText+`"}`)
+		jsonMap := make(map[string]interface{})
+		jsonMap["Error"] = "Could not parse sizeText"
+		jsonMap["ErrorMessage"] = err.Error()
+		jsonMap["sizeText"] = sizeText
+		errorMessageByteSlice, _ := json.Marshal(jsonMap)
+		log.Error(jsonMap)
+		response.WriteErrorString(400, string(errorMessageByteSlice))
 		return
 	}
 
 	offset, err := strconv.Atoi(offsetText)
 	if err != nil {
-		errorText := fmt.Sprintf("Parse from %s with error %s", offsetText, err)
-		log.Error(errorText)
-		response.WriteErrorString(400, `{"Error": "`+errorText+`"}`)
+		jsonMap := make(map[string]interface{})
+		jsonMap["Error"] = "Could not parse offsetText"
+		jsonMap["ErrorMessage"] = err.Error()
+		jsonMap["offsetText"] = offsetText
+		errorMessageByteSlice, _ := json.Marshal(jsonMap)
+		log.Error(jsonMap)
+		response.WriteErrorString(400, string(errorMessageByteSlice))
 		return
 	}
 
 	auditLogSlice, err := audit.SearchAuditLog(user, from, to, size, offset)
 	if err != nil {
-		errorText := fmt.Sprintf("Fail to get all audit logs belonging to user %s logs with error %s", user, err)
-		log.Error(errorText)
-		response.WriteErrorString(404, `{"Error": "`+errorText+`"}`)
+		jsonMap := make(map[string]interface{})
+		jsonMap["Error"] = "Get all services with the criteria failure"
+		jsonMap["ErrorMessage"] = err.Error()
+		jsonMap["user"] = user
+		jsonMap["from"] = from
+		jsonMap["to"] = to
+		jsonMap["size"] = size
+		jsonMap["offset"] = offset
+		errorMessageByteSlice, _ := json.Marshal(jsonMap)
+		log.Error(jsonMap)
+		response.WriteErrorString(404, string(errorMessageByteSlice))
 		return
 	}
 
@@ -185,19 +232,25 @@ func getAuditLog(request *restful.Request, response *restful.Response) {
 func postAuditLog(request *restful.Request, response *restful.Response) {
 	auditLog := &utilityaudit.AuditLog{}
 	err := request.ReadEntity(&auditLog)
-
 	if err != nil {
-		errorText := fmt.Sprintf("POST Audit Log with error %s", err)
-		log.Error(errorText)
-		response.WriteErrorString(400, `{"Error": "`+errorText+`"}`)
+		jsonMap := make(map[string]interface{})
+		jsonMap["Error"] = "Read body failure"
+		jsonMap["ErrorMessage"] = err.Error()
+		errorMessageByteSlice, _ := json.Marshal(jsonMap)
+		log.Error(jsonMap)
+		response.WriteErrorString(400, string(errorMessageByteSlice))
 		return
 	}
 
 	err = audit.SaveAudit(auditLog, false)
 	if err != nil {
-		errorText := fmt.Sprintf("Fail to create audit log with error %s", err)
-		log.Error(errorText)
-		response.WriteErrorString(404, `{"Error": "`+errorText+`"}`)
+		jsonMap := make(map[string]interface{})
+		jsonMap["Error"] = "Create service failure"
+		jsonMap["ErrorMessage"] = err.Error()
+		jsonMap["auditLog"] = auditLog
+		errorMessageByteSlice, _ := json.Marshal(jsonMap)
+		log.Error(jsonMap)
+		response.WriteErrorString(422, string(errorMessageByteSlice))
 		return
 	}
 }
