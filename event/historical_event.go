@@ -25,8 +25,8 @@ import (
 	"time"
 )
 
-func RecordHistoricalEvent(kubeapiHost string, kubeapiPort int) (returnedError error) {
-	jsonMapSlice, err := control.GetAllEvent(kubeapiHost, kubeapiPort)
+func RecordHistoricalEvent(kubeApiServerEndPoint string, kubeApiServerToken string) (returnedError error) {
+	jsonMapSlice, err := control.GetAllEvent(kubeApiServerEndPoint, kubeApiServerToken)
 	if err != nil {
 		log.Error(err)
 		return err
@@ -46,7 +46,7 @@ func RecordHistoricalEvent(kubeapiHost string, kubeapiPort int) (returnedError e
 			hasError = true
 		} else {
 			// Remove after saving in Elastic Search
-			if err := control.DeleteEvent(kubeapiHost, kubeapiPort, selfLink); err != nil {
+			if err := control.DeleteEvent(kubeApiServerEndPoint, kubeApiServerToken, selfLink); err != nil {
 				log.Error(err)
 				erroerMessageBuffer.WriteString(err.Error())
 				hasError = true

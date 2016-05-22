@@ -19,7 +19,7 @@ import (
 	"github.com/cloudawan/cloudone_utility/logger"
 )
 
-func RecordHistoricalAllNamespace(kubeapiHost string, kubeapiPort int) (returnedError error) {
+func RecordHistoricalAllNamespace(kubeApiServerEndPoint string, kubeApiServerToken string) (returnedError error) {
 	defer func() {
 		if err := recover(); err != nil {
 			log.Error("RecordHistoricalAllNamespace Error: %s", err)
@@ -28,7 +28,7 @@ func RecordHistoricalAllNamespace(kubeapiHost string, kubeapiPort int) (returned
 		}
 	}()
 
-	namespaceNameSlice, err := control.GetAllNamespaceName(kubeapiHost, kubeapiPort)
+	namespaceNameSlice, err := control.GetAllNamespaceName(kubeApiServerEndPoint, kubeApiServerToken)
 	if err != nil {
 		log.Error(err)
 		return err
@@ -36,12 +36,12 @@ func RecordHistoricalAllNamespace(kubeapiHost string, kubeapiPort int) (returned
 
 	allNamespaceContainerRecordSlice := make([]map[string]interface{}, 0)
 	for _, namespaceName := range namespaceNameSlice {
-		replicationControllerNameSlice, err := control.GetAllReplicationControllerName(kubeapiHost, kubeapiPort, namespaceName)
+		replicationControllerNameSlice, err := control.GetAllReplicationControllerName(kubeApiServerEndPoint, kubeApiServerToken, namespaceName)
 		if err != nil {
 			log.Error(err)
 		} else {
 			for _, replicationControllerName := range replicationControllerNameSlice {
-				replicationControllerContainerRecordSlice, err := RecordHistoricalReplicationController(kubeapiHost, kubeapiPort, namespaceName, replicationControllerName)
+				replicationControllerContainerRecordSlice, err := RecordHistoricalReplicationController(kubeApiServerEndPoint, kubeApiServerToken, namespaceName, replicationControllerName)
 				if err != nil {
 					log.Error(err)
 				} else {

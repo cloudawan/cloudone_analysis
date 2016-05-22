@@ -1,10 +1,15 @@
 {
 	"certificate": "/etc/cloudone_analysis/development_cert.pem",
 	"key": "/etc/cloudone_analysis/development_key.pem",
+	"restapiPort": 8082,
 	"elasticsearchHost": [{{ELASTICSEARCH_CLUSTER_HOST}}],
 	"elasticsearchPort": {{ELASTICSEARCH_CLUSTER_PORT}},
-	"kubeapiHostAndPort": [{{KUBEAPI_CLUSTER_HOST_AND_PORT}}],
-	"kubeapiHealthCheckTimeoutInMilliSecond": 1000,
+	"kubeApiServerEndPoints": [{{KUBE_APISERVER_ENDPOINTS}}],
+	"kubeApiServerHealthCheckTimeoutInMilliSecond": 1000,
+	"kubeApiServerTokenPath": "/var/run/secrets/kubernetes.io/serviceaccount/token",
 	"singletonLockTimeoutInMilliSecond": 5000,
-	"singletonLockWaitingAfterBeingCandidateInMilliSecond": 5000
+	"singletonLockWaitingAfterBeingCandidateInMilliSecond": 5000,
+	"cloudoneProtocol": "https",
+	"cloudoneHost": "{{CLOUDONE_HOST}}",
+	"cloudonePort": {{CLOUDONE_PORT}}
 }

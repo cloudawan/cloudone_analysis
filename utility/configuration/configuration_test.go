@@ -30,7 +30,7 @@ func TestRequestGet(t *testing.T) {
 }
 
 func TestGetAvailableKubeapiHostAndPort(t *testing.T) {
-	_, _, err := GetAvailableKubeapiHostAndPort()
+	_, _, err := GetAvailablekubeApiServerEndPoint()
 	if err != nil {
 		t.Errorf("Should not be error")
 	}

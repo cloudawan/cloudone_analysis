@@ -17,10 +17,9 @@ package control
 import (
 	"github.com/cloudawan/cloudone_utility/logger"
 	"github.com/cloudawan/cloudone_utility/restclient"
-	"strconv"
 )
 
-func GetAllEvent(kubeapiHost string, kubeapiPort int) (returnedEventSlice []map[string]interface{}, returnedError error) {
+func GetAllEvent(kubeApiServerEndPoint string, kubeApiServerToken string) (returnedEventSlice []map[string]interface{}, returnedError error) {
 	defer func() {
 		if err := recover(); err != nil {
 			log.Error("GetAllEvent Error: %s", err)
@@ -30,9 +29,12 @@ func GetAllEvent(kubeapiHost string, kubeapiPort int) (returnedEventSlice []map[
 		}
 	}()
 
-	jsonMap, err := restclient.RequestGet("http://"+kubeapiHost+":"+strconv.Itoa(kubeapiPort)+"/api/v1/events/", nil, true)
+	headerMap := make(map[string]string)
+	headerMap["Authorization"] = kubeApiServerToken
+
+	jsonMap, err := restclient.RequestGet(kubeApiServerEndPoint+"/api/v1/events/", headerMap, true)
 	if err != nil {
-		log.Error("Fail to get all event with host: %s, port: %d, error: %s", kubeapiHost, kubeapiPort, err.Error())
+		log.Error("Fail to get all event with endpoint: %s, token: %s, error: %s", kubeApiServerEndPoint, kubeApiServerToken, err.Error())
 		return nil, err
 	}
 
@@ -47,7 +49,7 @@ func GetAllEvent(kubeapiHost string, kubeapiPort int) (returnedEventSlice []map[
 	return eventSlice, nil
 }
 
-func DeleteEvent(kubeapiHost string, kubeapiPort int, selfLink string) (returnedError error) {
+func DeleteEvent(kubeApiServerEndPoint string, kubeApiServerToken string, selfLink string) (returnedError error) {
 	defer func() {
 		if err := recover(); err != nil {
 			log.Error("DeleteEvent Error: %s", err)
@@ -56,9 +58,12 @@ func DeleteEvent(kubeapiHost string, kubeapiPort int, selfLink string) (returned
 		}
 	}()
 
-	_, err := restclient.RequestDelete("http://"+kubeapiHost+":"+strconv.Itoa(kubeapiPort)+selfLink, nil, nil, true)
+	headerMap := make(map[string]string)
+	headerMap["Authorization"] = kubeApiServerToken
+
+	_, err := restclient.RequestDelete(kubeApiServerEndPoint+selfLink, nil, headerMap, true)
 	if err != nil {
-		log.Error("Fail to delete event selfLink %s with host: %s, port: %d, error: %s", selfLink, kubeapiHost, kubeapiPort, err.Error())
+		log.Error("Fail to delete event selfLink %s with endpoint: %s, token: %s, error: %s", selfLink, kubeApiServerEndPoint, kubeApiServerToken, err.Error())
 		return err
 	}
 

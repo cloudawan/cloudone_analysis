@@ -45,13 +45,13 @@ func periodicalRunHistoricalRecordEvent() {
 		}
 	}()
 
-	kubeapiHost, kubeapiPort, err := configuration.GetAvailableKubeapiHostAndPort()
+	kubeApiServerEndPoint, kubeApiServerToken, err := configuration.GetAvailablekubeApiServerEndPoint()
 	if err != nil {
-		log.Error("Fail to get configuration kubeapiHostAndPort with error %s", err)
+		log.Error("Fail to get configuration endpoint and token with error %s", err)
 		return
 	}
 
-	if err := event.RecordHistoricalEvent(kubeapiHost, kubeapiPort); err != nil {
+	if err := event.RecordHistoricalEvent(kubeApiServerEndPoint, kubeApiServerToken); err != nil {
 		log.Error(err)
 		return
 	}

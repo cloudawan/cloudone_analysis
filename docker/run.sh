@@ -40,9 +40,11 @@ fi
 
 
 # Use environment
-sed -i "s/{{KUBEAPI_CLUSTER_HOST_AND_PORT}}/$KUBEAPI_CLUSTER_HOST_AND_PORT/g" /etc/cloudone_analysis/configuration.json
+sed -i "s#{{KUBE_APISERVER_ENDPOINTS}}#$KUBE_APISERVER_ENDPOINTS#g" /etc/cloudone_analysis/configuration.json
 sed -i "s/{{ELASTICSEARCH_CLUSTER_HOST}}/$ELASTICSEARCH_CLUSTER_HOST/g" /etc/cloudone_analysis/configuration.json
 sed -i "s/{{ELASTICSEARCH_CLUSTER_PORT}}/$ELASTICSEARCH_CLUSTER_PORT/g" /etc/cloudone_analysis/configuration.json
+sed -i "s/{{CLOUDONE_HOST}}/$CLOUDONE_HOST/g" /etc/cloudone_analysis/configuration.json
+sed -i "s/{{CLOUDONE_PORT}}/$CLOUDONE_PORT/g" /etc/cloudone_analysis/configuration.json
 
 cd /src/cloudone_analysis
 ./cloudone_analysis &

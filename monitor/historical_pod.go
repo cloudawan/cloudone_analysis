@@ -19,12 +19,11 @@ import (
 	"errors"
 	"github.com/cloudawan/cloudone_utility/logger"
 	"github.com/cloudawan/cloudone_utility/restclient"
-	"strconv"
 	"strings"
 	"time"
 )
 
-func RecordHistoricalPod(kubeapiHost string, kubeapiPort int, namespace string, replicationControllerName string, podName string) (returnedPodContainerRecordSlice []map[string]interface{}, returnedError error) {
+func RecordHistoricalPod(kubeApiServerEndPoint string, kubeApiServerToken string, namespace string, replicationControllerName string, podName string) (returnedPodContainerRecordSlice []map[string]interface{}, returnedError error) {
 	defer func() {
 		if err := recover(); err != nil {
 			log.Error("RecordHistoricalPod Error: %s", err)
@@ -36,9 +35,12 @@ func RecordHistoricalPod(kubeapiHost string, kubeapiPort int, namespace string, 
 
 	podContainerRecordSlice := make([]map[string]interface{}, 0)
 
-	result, err := restclient.RequestGet("http://"+kubeapiHost+":"+strconv.Itoa(kubeapiPort)+"/api/v1/namespaces/"+namespace+"/pods/"+podName+"/", nil, true)
+	headerMap := make(map[string]string)
+	headerMap["Authorization"] = kubeApiServerToken
+
+	result, err := restclient.RequestGet(kubeApiServerEndPoint+"/api/v1/namespaces/"+namespace+"/pods/"+podName+"/", headerMap, true)
 	if err != nil {
-		log.Error("Fail to get pod inofrmation with host %s, port: %d, namespace: %s, pod name: %s, error %s", kubeapiHost, kubeapiPort, namespace, podName, err.Error())
+		log.Error("Fail to get pod inofrmation with endpoint %s, token: %s, namespace: %s, pod name: %s, error %s", kubeApiServerEndPoint, kubeApiServerToken, namespace, podName, err.Error())
 		return nil, err
 	}
 	jsonMap, _ := result.(map[string]interface{})
@@ -85,7 +87,7 @@ func RecordHistoricalPod(kubeapiHost string, kubeapiPort int, namespace string, 
 	}
 
 	if errorHappened {
-		log.Error("Fail to get all container inofrmation with host %s, port: %d, namespace: %s, pod name: %s, error %s", kubeapiHost, kubeapiPort, namespace, podName, errorBuffer.String())
+		log.Error("Fail to get all container inofrmation with endpoint %s, token: %s, namespace: %s, pod name: %s, error %s", kubeApiServerEndPoint, kubeApiServerToken, namespace, podName, errorBuffer.String())
 		return nil, errors.New(errorBuffer.String())
 	} else {
 		return podContainerRecordSlice, nil

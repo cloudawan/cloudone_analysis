@@ -17,10 +17,9 @@ package control
 import (
 	"github.com/cloudawan/cloudone_utility/logger"
 	"github.com/cloudawan/cloudone_utility/restclient"
-	"strconv"
 )
 
-func GetAllReplicationControllerName(kubeapiHost string, kubeapiPort int, namespace string) (returnedNameSlice []string, returnedError error) {
+func GetAllReplicationControllerName(kubeApiServerEndPoint string, kubeApiServerToken string, namespace string) (returnedNameSlice []string, returnedError error) {
 	defer func() {
 		if err := recover(); err != nil {
 			log.Error("GetAllReplicationController Error: %s", err)
@@ -30,9 +29,14 @@ func GetAllReplicationControllerName(kubeapiHost string, kubeapiPort int, namesp
 		}
 	}()
 
-	url := "http://" + kubeapiHost + ":" + strconv.Itoa(kubeapiPort) + "/api/v1/namespaces/" + namespace + "/replicationcontrollers/"
-	jsonMap, err := restclient.RequestGet(url, nil, true)
+	url := kubeApiServerEndPoint + "/api/v1/namespaces/" + namespace + "/replicationcontrollers/"
+
+	headerMap := make(map[string]string)
+	headerMap["Authorization"] = kubeApiServerToken
+
+	jsonMap, err := restclient.RequestGet(url, headerMap, true)
 	if err != nil {
+		log.Error(err)
 		return nil, err
 	} else {
 		nameSlice := make([]string, 0)

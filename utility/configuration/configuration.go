@@ -20,8 +20,7 @@ import (
 	"github.com/cloudawan/cloudone_utility/configuration"
 	"github.com/cloudawan/cloudone_utility/logger"
 	"github.com/cloudawan/cloudone_utility/restclient"
-	"strconv"
-	"strings"
+	"io/ioutil"
 	"time"
 )
 
@@ -34,8 +33,9 @@ var configurationContent = `
 	"restapiPort": 8082,
 	"elasticsearchHost": ["127.0.0.1"],
 	"elasticsearchPort": 9200,
-	"kubeapiHostAndPort": ["127.0.0.1:8080"],
-	"kubeapiHealthCheckTimeoutInMilliSecond": 1000,
+	"kubeApiServerEndPoints": ["https://kubernetes.default.svc.cluster.local:443"],
+	"kubeApiServerHealthCheckTimeoutInMilliSecond": 1000,
+	"kubeApiServerTokenPath": "/var/run/secrets/kubernetes.io/serviceaccount/token",
 	"singletonLockTimeoutInMilliSecond": 5000,
 	"singletonLockWaitingAfterBeingCandidateInMilliSecond": 5000,
 	"cloudoneProtocol": "https",
@@ -45,7 +45,10 @@ var configurationContent = `
 `
 
 var LocalConfiguration *configuration.Configuration
-var KubeapiHealthCheckTimeoutInMilliSecond = 1000
+
+const (
+	KubeApiServerHealthCheckTimeoutInMilliSecond = 1000
+)
 
 func init() {
 	err := Reload()
@@ -64,41 +67,52 @@ func Reload() error {
 	return err
 }
 
-func GetAvailableKubeapiHostAndPort() (returnedHost string, returnedPort int, returnedError error) {
+func GetAvailablekubeApiServerEndPoint() (returnedEndPoint string, returnedToken string, returnedError error) {
 	defer func() {
 		if err := recover(); err != nil {
-			returnedHost = ""
-			returnedPort = 0
+			returnedEndPoint = ""
+			returnedToken = ""
 			returnedError = err.(error)
-			log.Error("GetAvailableKubeapiHostAndPort Error: %s", err)
+			log.Error("GetAvailablekubeApiServerEndPoint Error: %s", err)
 			log.Error(logger.GetStackTrace(4096, false))
 		}
 	}()
 
-	kubeapiHostAndPortSlice, ok := LocalConfiguration.GetStringSlice("kubeapiHostAndPort")
+	kubeApiServerEndPointSlice, ok := LocalConfiguration.GetStringSlice("kubeApiServerEndPoints")
 	if ok == false {
-		log.Error("Fail to get configuration kubeapiHostAndPort")
-		return "", 0, errors.New("Fail to get configuration kubeapiHostAndPort")
+		log.Error("Fail to get configuration kubeApiServerEndPoints")
+		return "", "", errors.New("Fail to get configuration kubeApiServerEndPoints")
 	}
 
-	kubeapiHealthCheckTimeoutInMilliSecond, ok := LocalConfiguration.GetInt("kubeapiHealthCheckTimeoutInMilliSecond")
+	kubeApiServerTokenPath, ok := LocalConfiguration.GetString("kubeApiServerTokenPath")
 	if ok == false {
-		kubeapiHealthCheckTimeoutInMilliSecond = KubeapiHealthCheckTimeoutInMilliSecond
+		log.Error("Fail to get configuration kubeApiServerTokenPath")
+		return "", "", errors.New("Fail to get configuration kubeApiServerTokenPath")
 	}
 
-	for _, kubeapiHostAndPort := range kubeapiHostAndPortSlice {
-		result, err := restclient.HealthCheck("http://"+kubeapiHostAndPort,
-			time.Duration(kubeapiHealthCheckTimeoutInMilliSecond)*time.Millisecond)
+	fileContent, err := ioutil.ReadFile(kubeApiServerTokenPath)
+	if err != nil {
+		log.Error("Fail to get the file content of kubeApiServerTokenPath %s", kubeApiServerTokenPath)
+		return "", "", errors.New("Fail to get the file content of kubeApiServerTokenPath " + kubeApiServerTokenPath)
+	}
+
+	kubeApiServerHealthCheckTimeoutInMilliSecond, ok := LocalConfiguration.GetInt("kubeApiServerHealthCheckTimeoutInMilliSecond")
+	if ok == false {
+		kubeApiServerHealthCheckTimeoutInMilliSecond = KubeApiServerHealthCheckTimeoutInMilliSecond
+	}
+
+	token := "Bearer " + string(fileContent)
+	headerMap := make(map[string]string)
+	headerMap["Authorization"] = token
+
+	for _, kubeApiServerEndPoint := range kubeApiServerEndPointSlice {
+		result, err := restclient.HealthCheck(
+			kubeApiServerEndPoint,
+			headerMap,
+			time.Duration(kubeApiServerHealthCheckTimeoutInMilliSecond)*time.Millisecond)
 
 		if result {
-			splitSlice := strings.Split(kubeapiHostAndPort, ":")
-			host := splitSlice[0]
-			port, err := strconv.Atoi(splitSlice[1])
-			if err != nil {
-				log.Error(err)
-				return "", 0, err
-			}
-			return host, port, nil
+			return kubeApiServerEndPoint, token, nil
 		} else {
 			if err != nil {
 				log.Error(err)
@@ -106,6 +120,6 @@ func GetAvailableKubeapiHostAndPort() (returnedHost string, returnedPort int, re
 		}
 	}
 
-	log.Error("No available host and port")
-	return "", 0, errors.New("No available host and port")
+	log.Error("No available kube apiserver endpoint")
+	return "", "", errors.New("No available kube apiserver endpoint")
 }

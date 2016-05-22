@@ -17,10 +17,9 @@ package control
 import (
 	"github.com/cloudawan/cloudone_utility/logger"
 	"github.com/cloudawan/cloudone_utility/restclient"
-	"strconv"
 )
 
-func GetAllPodNameBelongToReplicationController(kubeapiHost string, kubeapiPort int, namespace string, replicationControllerName string) (returnedNameSlice []string, returnedError error) {
+func GetAllPodNameBelongToReplicationController(kubeApiServerEndPoint string, kubeApiServerToken string, namespace string, replicationControllerName string) (returnedNameSlice []string, returnedError error) {
 	defer func() {
 		if err := recover(); err != nil {
 			log.Error("GetAllPodNameBelongToReplicationController Error: %s", err)
@@ -30,9 +29,12 @@ func GetAllPodNameBelongToReplicationController(kubeapiHost string, kubeapiPort 
 		}
 	}()
 
-	jsonMap, err := restclient.RequestGet("http://"+kubeapiHost+":"+strconv.Itoa(kubeapiPort)+"/api/v1/namespaces/"+namespace+"/pods/", nil, true)
+	headerMap := make(map[string]string)
+	headerMap["Authorization"] = kubeApiServerToken
+
+	jsonMap, err := restclient.RequestGet(kubeApiServerEndPoint+"/api/v1/namespaces/"+namespace+"/pods/", headerMap, true)
 	if err != nil {
-		log.Error("Fail to get replication controller inofrmation with host %s, port: %d, namespace: %s, replication controller name: %s, error %s", kubeapiHost, kubeapiPort, namespace, replicationControllerName, err.Error())
+		log.Error("Fail to get replication controller inofrmation with endpoint %s, token: %s, namespace: %s, replication controller name: %s, error %s", kubeApiServerEndPoint, kubeApiServerToken, namespace, replicationControllerName, err.Error())
 		return nil, err
 	}
 

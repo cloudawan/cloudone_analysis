@@ -45,13 +45,13 @@ func periodicalRunHistoricalRecordContainerMetrics() {
 		}
 	}()
 
-	kubeapiHost, kubeapiPort, err := configuration.GetAvailableKubeapiHostAndPort()
+	kubeApiServerEndPoint, kubeApiServerToken, err := configuration.GetAvailablekubeApiServerEndPoint()
 	if err != nil {
-		log.Error("Fail to get configuration kubeapiHostAndPort with error %s", err)
+		log.Error("Fail to get configuration endpoint and token with error %s", err)
 		return
 	}
 
-	if err := monitor.RecordHistoricalAllNamespace(kubeapiHost, kubeapiPort); err != nil {
+	if err := monitor.RecordHistoricalAllNamespace(kubeApiServerEndPoint, kubeApiServerToken); err != nil {
 		log.Error(err)
 		return
 	}

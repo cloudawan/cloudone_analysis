@@ -25,7 +25,7 @@ import (
 	"time"
 )
 
-func RecordHistoricalReplicationController(kubeapiHost string, kubeapiPort int, namespace string, replicationControllerName string) (returnedReplicationControllerContainerRecordSlice []map[string]interface{}, returnedError error) {
+func RecordHistoricalReplicationController(kubeApiServerEndPoint string, kubeApiServerToken string, namespace string, replicationControllerName string) (returnedReplicationControllerContainerRecordSlice []map[string]interface{}, returnedError error) {
 	defer func() {
 		if err := recover(); err != nil {
 			log.Error("RecordHistoricalReplicationController Error: %s", err)
@@ -35,9 +35,9 @@ func RecordHistoricalReplicationController(kubeapiHost string, kubeapiPort int, 
 		}
 	}()
 
-	podNameSlice, err := control.GetAllPodNameBelongToReplicationController(kubeapiHost, kubeapiPort, namespace, replicationControllerName)
+	podNameSlice, err := control.GetAllPodNameBelongToReplicationController(kubeApiServerEndPoint, kubeApiServerToken, namespace, replicationControllerName)
 	if err != nil {
-		log.Error("Fail to get all pod name belong to the replication controller with host %s, port: %d, namespace: %s, replication controller name: %s", kubeapiHost, kubeapiPort, namespace, replicationControllerName)
+		log.Error("Fail to get all pod name belong to the replication controller with endpoint %s, token: %s, namespace: %s, replication controller name: %s", kubeApiServerEndPoint, kubeApiServerToken, namespace, replicationControllerName)
 		return nil, err
 	}
 
@@ -47,7 +47,7 @@ func RecordHistoricalReplicationController(kubeapiHost string, kubeapiPort int, 
 
 	replicationControllerContainerRecordSlice := make([]map[string]interface{}, 0)
 	for _, podName := range podNameSlice {
-		podContainerRecordSlice, err := RecordHistoricalPod(kubeapiHost, kubeapiPort, namespace, replicationControllerName, podName)
+		podContainerRecordSlice, err := RecordHistoricalPod(kubeApiServerEndPoint, kubeApiServerToken, namespace, replicationControllerName, podName)
 		if err != nil {
 			errorHappened = true
 			log.Error("RecordHistoricalPod error %s", err)
@@ -58,7 +58,7 @@ func RecordHistoricalReplicationController(kubeapiHost string, kubeapiPort int, 
 	}
 
 	if errorHappened {
-		log.Error("Fail to get all container inofrmation with host %s, port: %d, namespace: %s, error %s", kubeapiHost, kubeapiPort, namespace, errorBuffer.String())
+		log.Error("Fail to get all container inofrmation with endpoint %s, token: %s, namespace: %s, error %s", kubeApiServerEndPoint, kubeApiServerToken, namespace, errorBuffer.String())
 		return nil, errors.New(errorBuffer.String())
 	} else {
 		return replicationControllerContainerRecordSlice, nil
